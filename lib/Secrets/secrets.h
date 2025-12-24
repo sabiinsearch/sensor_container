@@ -1,11 +1,9 @@
 #include <pgmspace.h>
 
-#define SECRET
-#define THINGNAME "container_sensors"           //change this
+#include <app_config.h>
 
-const char WIFI_SSID[] = "hukam";               //change this
-const char WIFI_PASSWORD[] = "guest@13";           //change this
-const char AWS_IOT_ENDPOINT[] = "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com";       //change this
+#define SECRET
+
 
 // Amazon Root CA 1
 static const char AWS_CERT_CA[] PROGMEM = R"EOF(
