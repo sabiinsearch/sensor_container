@@ -6,7 +6,7 @@
 
 //  Dummy Sensor Data 
 #define TEMP_Demo      25.0
-#define HUMIDITY_Demo  125.0
+#define HUMIDITY_Demo  105.0
 #define PRESSURE_DEMO  100.0
 
 /******************************* Do Not Edit / update these values      **************************************/
