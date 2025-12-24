@@ -116,6 +116,7 @@ int getLoad() {
     return LOAD_Demo;
 }
 
+
 //function to get sensor data and update appManager
 
 void getSensorData_print_update(appManager* appMgr) {
@@ -152,13 +153,15 @@ void getSensorData_print_update(appManager* appMgr) {
     snprintf(load_Buff, sizeof(load_Buff), "%f", load);   
     
     screen.clearDisplay();
-    screen.display();    
+    screen.display();           
 
     printOnScreen(20,25,1,1,"Hum  - ");
     printOnScreen(65,25,1,1,hum_Buff);
+    
 
     printOnScreen(20,40,1,1,"Temp - ");
     printOnScreen(65,40,1,1,temp_Buff); 
+
     
     printOnScreen(7,52,1,1,"Weight - ");
     printOnScreen(65,52,1,1,load_Buff); 
