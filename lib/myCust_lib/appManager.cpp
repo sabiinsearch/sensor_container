@@ -69,7 +69,7 @@ void initScreen() {
         screen.print(F("Hukam.."));
         screen.println();
         screen.display(); // actually display all of the above
-        delay(1500);  
+        delay(1000);  
         
         screen.clearDisplay();
         screen.display();
@@ -149,10 +149,8 @@ void getSensorData_print_update(appManager* appMgr) {
     printOnScreen(45,20,1,1,hum_Buff);
 
     printOnScreen(20,35,1,1,"Temp - ");
-    printOnScreen(45,35,1,1,temp_Buff);
-
-        
-    screen.clearDisplay();
+    printOnScreen(45,35,1,1,temp_Buff);        
+    
     screen.display();    
 
 
