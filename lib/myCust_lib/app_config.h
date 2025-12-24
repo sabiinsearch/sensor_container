@@ -5,9 +5,10 @@
 #include "Arduino.h"
 
 //  Dummy Sensor Data 
-#define TEMP_Demo      25.0
+#define TEMP_Demo      27.0
 #define HUMIDITY_Demo  105.0
 #define PRESSURE_DEMO  100.0
+#define LOAD_Demo      20
 
 /******************************* Do Not Edit / update these values      **************************************/
 //  Mqtt Configurations 

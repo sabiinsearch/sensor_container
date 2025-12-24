@@ -112,6 +112,10 @@ float getPressure() {
     return PRESSURE_DEMO;
 }
 
+int getLoad() {
+    return LOAD_Demo;
+}
+
 //function to get sensor data and update appManager
 
 void getSensorData_print_update(appManager* appMgr) {
@@ -120,9 +124,11 @@ void getSensorData_print_update(appManager* appMgr) {
 
   float hum = getHum();
   float temp = getTemp();
+  int load = getLoad();
 
   char hum_Buff[10];
   char temp_Buff[10];
+  char load_Buff[10];
   
   int ndigits=6;  
 
@@ -133,7 +139,9 @@ void getSensorData_print_update(appManager* appMgr) {
   Serial.print(hum);
   Serial.print(F("% Temperature: "));
   Serial.print(temp);
-  Serial.println(F("°C "));
+  Serial.print(F("°C "));
+  Serial.print(F("\tWeight: "));
+  Serial.println(load);
 
   // print on Screen
     
@@ -141,15 +149,19 @@ void getSensorData_print_update(appManager* appMgr) {
  
     snprintf(hum_Buff, sizeof(hum_Buff), "%f", hum);
     snprintf(temp_Buff, sizeof(temp_Buff), "%f", temp);   
-        
+    snprintf(load_Buff, sizeof(load_Buff), "%f", load);   
+    
     screen.clearDisplay();
     screen.display();    
 
-    printOnScreen(20,20,1,1,"Hum  - ");
-    printOnScreen(65,20,1,1,hum_Buff);
+    printOnScreen(20,25,1,1,"Hum  - ");
+    printOnScreen(65,25,1,1,hum_Buff);
 
-    printOnScreen(20,35,1,1,"Temp - ");
-    printOnScreen(65,35,1,1,temp_Buff);        
+    printOnScreen(20,40,1,1,"Temp - ");
+    printOnScreen(65,40,1,1,temp_Buff); 
+    
+    printOnScreen(7,52,1,1,"Weight - ");
+    printOnScreen(65,52,1,1,load_Buff); 
     
     screen.display();    
 
@@ -160,6 +172,7 @@ void getSensorData_print_update(appManager* appMgr) {
 
   doc["humidity"] = hum;
   doc["temperature"] = temp;
+  doc["Load"] = load;
 
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
