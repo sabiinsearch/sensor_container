@@ -5,36 +5,6 @@
 #include <WiFiManager.h>
 #include "app_config.h"
 
-// struct configuration_t{
-
-//      int     tankCapacity;
-//      int     calibrationFactor;
-
-// // Connectivity configrations
-//      bool   radioAvailability;
-//      bool   wifiAvailabililty;
-//      bool   mqttAvailability;
-
-// // Energy Monitoring configrations
-
-//     int         publishON;
-//     int         publishOFF;
-//     uint8_t     voltageIn;
-//     uint8_t     vcc;
-//     uint8_t     senstivity;
-//     uint8_t     powerFactor;
-
-//     // MQTT configrations
-//     String       org;
-//     String       boardType;
-//     String       token;
-//     String       server;
-//     String       pub_topoic;
-//     String       sub_topoic;
-//     String       mqtt_user;
-//     String       mqtt_pwd;
-// };
-
 
 /*Connection Manager's attributes*/
 typedef struct {

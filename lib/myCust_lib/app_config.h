@@ -4,6 +4,9 @@
 
 #include "Arduino.h"
 
+#define TEMP_Demo      25.0
+#define HUMIDITY_Demo  125.0
+#define PRESSURE_DEMO  100.0
 // Tank Specific
      
      #define TANK_CAPACITY       5                 // for Demo
@@ -41,6 +44,9 @@
     #define PUB_TOPIC       "iot-2/evt/status/fmt/json"
     #define SUB_TOPIC       "iot-2/cmd/device/fmt/json"
     #define MQTT_USER       "use-token-auth"
-    #define MQTT_PASSWORD   "1SatnamWaheguruJi"    
+    #define MQTT_PASSWORD   "1SatnamWaheguruJi" 
+
+    #define AWS_URL       "a3k7odshaiipe8-ats.iot.us-east-1.amazonaws.com"   // AWS MQTT Broker URL
+
     
 #endif

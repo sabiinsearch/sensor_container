@@ -11,7 +11,7 @@
 #include "WiFiSTA.h"
 
 
-#include <LoRa.h>
+
 #include <PubSubClient.h>   // for Mqtt
 
 #include "app_config.h"     // for Custom Configration
@@ -183,24 +183,6 @@ void resetWifi(connectionManager * con) {
     digitalWrite(WIFI_LED,HIGH);
 }
 
-void initRadio(connectionManager * con){
-  SPI.begin(SCK, MISO, MOSI, CS);
-  LoRa.setPins(SS, RST, DI0);
-      delay(1000);
-
-      int radioTryCount = 0;      
-      do{
-        con->radio_status = LoRa.begin(BAND);
-        radioTryCount++;
-        if(!con->radio_status){
-          Serial.printf("Starting Radio failed!, Try Count: %d\n", radioTryCount);
-          delay(3000);
-        }else{
-          Serial.println("Radio Initialized Successfully...");
-        }
-      }while(!con->radio_status && radioTryCount < 3);
-
-}
 
 char* string2char(String str){
   char *p;
@@ -227,24 +209,6 @@ char* string2char(String str){
     // }
 }
 
-void checkDataOnRadio(){
-  String receivedText;
-  // try to parse packet
-    int packetSize = LoRa.parsePacket();
-    if (packetSize) {
-        // received a packet
-        // Serial.print("Received packet '");
-        // read packet
-        while (LoRa.available()) {
-          receivedText = (char)LoRa.read();
-          Serial.print(receivedText);
-        }
-
-        // print RSSI of packet
-        // Serial.print("' with RSSI ");
-        //// Serial.println(LoRa.packetRssi());
-    }
-}
 
 void saveConfig_str(const char* key, const char* value) {
 

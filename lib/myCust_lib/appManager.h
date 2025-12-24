@@ -37,6 +37,7 @@ void setSwitchOff(appManager*);
 void checkButtonPressed(appManager*);
 void setLevel(appManager*);
 void getUpdateFrmCloud(appManager*);
+void getSensorData_and_update(appManager*);
 
 
 

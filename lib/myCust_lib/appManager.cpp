@@ -8,9 +8,9 @@
 //#include "app_config.h"
 #include "appManager.h"
 #include "connectionManager.h"
-#include "EnergyMonitoring.h"
-#include "receiverBoard.h"
 
+#include "receiverBoard.h"
+#include "sensor.h"
 // Libraries for Load Cell
 #include <Arduino.h> 
 #include "EEPROM.h"
@@ -54,6 +54,17 @@ void appManager_ctor(appManager * const me) {
 
 /* Function Implementation */
 
+//function to get sensor data and update appManager
+void getSensorData_and_update(appManager* appMgr) {
+
+    float temperature = getTemp();
+    float humidity = getHum();
+    float pressure = getPressure();
+    String payload;
+
+    broadcast_appMgr(appMgr);
+    
+}
 // function to get switch status from cloud
 void getUpdateFrmCloud(appManager* appMgr) {
 
@@ -76,19 +87,11 @@ void getUpdateFrmCloud(appManager* appMgr) {
 
 // Setting the Tank LEDs accordingly
 void LED_allOff() {
-   digitalWrite(LED1,HIGH);
-   digitalWrite(LED2,HIGH);
-   digitalWrite(LED3,HIGH);
-   digitalWrite(LED4,HIGH);
-   digitalWrite(LED5,HIGH);
+
 }
 
 void LED_allOn() {
-   digitalWrite(LED1,LOW);
-   digitalWrite(LED2,LOW);
-   digitalWrite(LED3,LOW);
-   digitalWrite(LED4,LOW);
-   digitalWrite(LED5,LOW);
+
 }
 
 void initRGB(){
@@ -114,13 +117,7 @@ void initRGB(){
   pinMode(reset_pin,OUTPUT);
 
   digitalWrite(reset_pin,HIGH);
-  // setting Tank level LEDs
-  pinMode(LED1,OUTPUT);
-  pinMode(LED2,OUTPUT);
-  pinMode(LED3,OUTPUT);
-  pinMode(LED4,OUTPUT);
-  pinMode(LED5,OUTPUT);
-
+ 
   // pinMode(data_pin,INPUT);
   // pinMode(clk_pin,OUTPUT);
  }
@@ -139,13 +136,9 @@ void initRGB(){
   //root["type"] = appMgr->conManager->config->boardType;
   root["type"] = BOARD_TYPE;
   root["uniqueId"] = getBoard_ID();
-  data["switch"] = appMgr->switch_val;
-  data["level_%"] = appMgr->waterLevel;
-//  appMgr->totalEnergy = 0.0;                 // reset Total Energy after broadcast
-  data["energy"] = appMgr->totalEnergy;
-  appMgr->totalEnergy = 0.0;                 // reset Total Energy after broadcast
-  data["timestamp"] = millis();
-
+  data["Temp"] = getTemp();
+  data["Humidity"] = getHum();
+  data["Pressure"] = getPressure();
   serializeJson(root, payload);
   publishData(payload,appMgr->conManager);
  }
@@ -354,110 +347,9 @@ void checkWaterLevel_and_indicators(appManager* appMgr) {
       appMgr->waterLevel = reading-appMgr->threshold;
      }
       
-//      Serial.println("Setting indicators..");
-       switch((int)appMgr->waterLevel) {
-
-         case 0:
-           digitalWrite(LED1,HIGH);
-           digitalWrite(LED2,HIGH);
-           digitalWrite(LED3,HIGH);
-           digitalWrite(LED4,HIGH);
-           digitalWrite(LED5,HIGH);
-
-         case 1:
-           digitalWrite(LED1,LOW);
-           digitalWrite(LED2,HIGH);
-           digitalWrite(LED3,HIGH);
-           digitalWrite(LED4,HIGH);
-           digitalWrite(LED5,HIGH);
-            break;
-
-         case 2:
-
-           digitalWrite(LED1,LOW);
-           digitalWrite(LED2,LOW);
-           digitalWrite(LED3,HIGH);
-           digitalWrite(LED4,HIGH);
-           digitalWrite(LED5,HIGH);
-
-            break;
-
-         case 3:
-
-           digitalWrite(LED1,LOW);
-           digitalWrite(LED2,LOW);
-           digitalWrite(LED3,LOW);
-           digitalWrite(LED4,HIGH);
-           digitalWrite(LED5,HIGH);
-
-            break;
-
-         case 4:
-
-           digitalWrite(LED1,LOW);
-           digitalWrite(LED2,LOW);
-           digitalWrite(LED3,LOW);
-           digitalWrite(LED4,LOW);
-           digitalWrite(LED5,HIGH);
-            break;
-
-         case 5:
-
-           digitalWrite(LED1,LOW);
-           digitalWrite(LED2,LOW);
-           digitalWrite(LED3,LOW);
-           digitalWrite(LED4,LOW);
-           digitalWrite(LED5,LOW);
-
-            break;
-
-         default:
-
-           digitalWrite(LED1,HIGH);
-           digitalWrite(LED2,HIGH);
-           digitalWrite(LED3,HIGH);
-           digitalWrite(LED4,HIGH);
-           digitalWrite(LED5,HIGH);
-
-            break;               
-       }
-       
  }
 
  
-
-//  void checkConnections_and_reconnect(void * pvParameters) { 
-    
-//     appManager* appMgr = (appManager*)pvParameters; 
-//     Serial.print("checking connection set @ Core..");
-//     Serial.println(xPortGetCoreID());
-//     // Serial.print("\t");
-//     // Serial.print("wifi : ");
-//     // Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
-
-//    if(RADIO_AVAILABILITY){
-//       initRadio(appMgr->conManager);
-//       Serial.print(" Ready to print ");
-//    }
-//       if(WIFI_AVAILABILITY) {
-//         initWiFi();
-//       }
-
-//     for(;;) {
-//       //;
-      
-//       if((getWiFi_Availability(appMgr->conManager)==true) && (appMgr->conManager->wifi_manager.getWLStatusString()!= "WL_CONNECTED")) {
-//         Serial.print("Wifi status..");
-//         Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
-//         digitalWrite(WIFI_LED,HIGH);
-//         appMgr->conManager->Wifi_status = connectWiFi(appMgr->conManager);
-//       }
-//       if((getWiFi_Availability(appMgr->conManager)) && (appMgr->conManager->Wifi_status) && !(appMgr->conManager->mqtt_status)) {
-//         digitalWrite(MQTT_LED,HIGH);
-//         appMgr->conManager->mqtt_status = connectMQTT(appMgr->conManager);
-//       }
-//     }
-//  }
 
 
  
