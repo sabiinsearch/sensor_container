@@ -28,7 +28,7 @@
 connectionManager conManagerr;
 
 // Create display object with custom I2C
-Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 Preferences pref;
 /* constructor implementation */
@@ -55,14 +55,39 @@ void appManager_ctor(appManager * const me) {
 void initScreen() {
 
  //  Initialize the OLED display
-  if (!display.begin(ADD_OLED, 0x3C)) {
+  if (!screen.begin(ADD_OLED, 0x3C)) {
     Serial.println(F("SSD1306 initialization failed"));
     while (true);  // Stop execution if display fails to initialize
   }
-  display.clearDisplay();
-  display.display();
+
+  screen.clearDisplay();
+  screen.display();
+  delay(100);
+        screen.setTextSize(2);
+        screen.setTextColor(SH110X_WHITE);
+        screen.setCursor(40,20);        
+        screen.print(F("Hukam.."));
+        screen.println();
+        screen.display(); // actually display all of the above
+        delay(300);  
 
 }
+
+void printOnScreen(int x, int y, int textSize, int textColor, String text) {
+        
+        screen.clearDisplay();
+        screen.display();
+        delay(100);
+        screen.setCursor(x,y); 
+        screen.setTextSize(textSize);
+        screen.setTextColor(textColor);
+        screen.print(text);
+        screen.println();
+        screen.display(); // actually display all of the above
+        delay(300);       
+
+}
+
 void connectCloud(appManager* appMgr) {
       connectAWS(appMgr->conManager);
 }
