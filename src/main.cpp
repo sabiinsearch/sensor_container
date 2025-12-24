@@ -7,10 +7,7 @@
 
 // Others
 
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_SH110X.h>
+
 
 // my libraries
 #include "appManager.h"
@@ -20,8 +17,6 @@
 // my Managers
 appManager managr;
 
-// Create display object with custom I2C
-Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // DHT dht(DHTPIN, DHTTYPE);
 
@@ -37,16 +32,6 @@ void setup()
     // Initiating Manager
   Serial.println("Initializing App Manager..");
   appManager_ctor(&managr);
-  // Start I2C on custom pins (for ESP32)
-  Wire.begin(SDA, SCL);
-
- //  Initialize the OLED display
-  if (!display.begin(ADD_OLED, 0x3C)) {
-    Serial.println(F("SSD1306 initialization failed"));
-    while (true);  // Stop execution if display fails to initialize
-  }
-  display.clearDisplay();
-  display.display();
 
   connectCloud(&managr);
   // dht.begin();
@@ -64,13 +49,7 @@ void loop()
   //   return;
   // }
 
-  Serial.print(F("Humidity: "));
-  Serial.print(HUMIDITY_Demo);
-  Serial.print(F("% Temperature: "));
-  Serial.print(TEMP_Demo);
-  Serial.println(F("°C "));
-
-  publishMessage(&managr);
+  getSensorData_print_update(&managr);
   //client.loop();
   loop_mgr(&managr);
   delay(1000);
