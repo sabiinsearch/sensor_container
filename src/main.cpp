@@ -1,96 +1,54 @@
-#include "secrets.h"
+// Libraries for AWS
+#include "secrets.h"             //  for AWS Certificates and Keys
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include "WiFi.h"
 
-// #include "DHT.h"
-// #define DHTPIN 14     // Digital pin connected to the DHT sensor
-// #define DHTTYPE DHT11   // DHT 11
+// Others
 
-#define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"
-#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"  //change this
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_SH110X.h>
 
-float h = 50.0 ;
-float t = 25.0;
+// my libraries
+#include "appManager.h"
+#include "receiverBoard.h"
+#include "sensor.h"
+
+// my Managers
+appManager managr;
+
+// Create display object with custom I2C
+Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // DHT dht(DHTPIN, DHTTYPE);
 
-WiFiClientSecure net = WiFiClientSecure();
-PubSubClient client(net);
-
-  void messageHandler(char* topic, byte* payload, unsigned int length)
-  {
-   Serial.print("incoming:  ");
-   Serial.println(topic);
-
-  StaticJsonDocument<200> doc;
-  deserializeJson(doc, payload);
-  const char* message = doc["message"];
-  Serial.println(message);
-  }
-
-void connectAWS()
-{
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  Serial.println("Connecting to Wi-Fi");
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
+// WiFiClientSecure net = WiFiClientSecure();
+// PubSubClient client(net);
 
 
-
-  // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA);
-  net.setCertificate(AWS_CERT_CRT);
-  net.setPrivateKey(AWS_CERT_PRIVATE);
-
-  // Connect to the MQTT broker on the AWS endpoint we defined earlier
-  client.setServer(AWS_IOT_ENDPOINT, 8883);
-
-  // Create a message handler
-  client.setCallback(messageHandler);
-
-  Serial.println("Connecting to AWS IOT");
-
-  while (!client.connect(THINGNAME))
-  {
-    Serial.print(".");
-    delay(100);
-  }
-
-  if (!client.connected())
-  {
-    Serial.println("AWS IoT Timeout!");
-    return;
-  }
-
-  // Subscribe to a topic
-  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-
-  Serial.println("AWS IoT Connected!");
-}
-
-void publishMessage()
-{
-  StaticJsonDocument<200> doc;
-  doc["humidity"] = h;
-  doc["temperature"] = t;
-  char jsonBuffer[512];
-  serializeJson(doc, jsonBuffer); // print to client
-
-  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-}
 
 void setup()
 {
   Serial.begin(115200);
-  connectAWS();
+ 
+    // Initiating Manager
+  Serial.println("Initializing App Manager..");
+  appManager_ctor(&managr);
+  // Start I2C on custom pins (for ESP32)
+  Wire.begin(SDA, SCL);
+
+ //  Initialize the OLED display
+  if (!display.begin(ADD_OLED, 0x3C)) {
+    Serial.println(F("SSD1306 initialization failed"));
+    while (true);  // Stop execution if display fails to initialize
+  }
+  display.clearDisplay();
+  display.display();
+
+  connectCloud(&managr);
   // dht.begin();
 }
 
@@ -107,12 +65,13 @@ void loop()
   // }
 
   Serial.print(F("Humidity: "));
-  Serial.print(h);
-  Serial.print(F("%  Temperature: "));
-  Serial.print(t);
+  Serial.print(HUMIDITY_Demo);
+  Serial.print(F("% Temperature: "));
+  Serial.print(TEMP_Demo);
   Serial.println(F("°C "));
 
-  publishMessage();
-  client.loop();
+  publishMessage(&managr);
+  //client.loop();
+  loop_mgr(&managr);
   delay(1000);
 }
