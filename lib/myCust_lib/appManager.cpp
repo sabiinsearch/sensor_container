@@ -65,26 +65,29 @@ void initScreen() {
   delay(100);
         screen.setTextSize(2);
         screen.setTextColor(SH110X_WHITE);
-        screen.setCursor(20,20);        
+        screen.setCursor(20,10);        
         screen.print(F("Hukam.."));
         screen.println();
         screen.display(); // actually display all of the above
-        delay(300);  
+        delay(1500);  
+        
+        screen.clearDisplay();
+        screen.display();
 
 }
 
 void printOnScreen(int x, int y, int textSize, int textColor, String text) {
         
-        screen.clearDisplay();
-        screen.display();
-        delay(100);
+        // screen.clearDisplay();
+        // screen.display();
+        // delay(100);
         screen.setCursor(x,y); 
         screen.setTextSize(textSize);
         screen.setTextColor(textColor);
         screen.print(text);
         screen.println();
         screen.display(); // actually display all of the above
-        delay(300);       
+      
 
 }
 
@@ -97,20 +100,75 @@ void loop_mgr(appManager* appMgr) {
 }
 
 
+float getTemp() {
+    return TEMP_Demo;
+}
+
+float getHum() {
+    return HUMIDITY_Demo;
+}
+
+float getPressure() {
+    return PRESSURE_DEMO;
+}
+
 //function to get sensor data and update appManager
-void getSensorData_and_update(appManager* appMgr) {
+
+void getSensorData_print_update(appManager* appMgr) {
    
+  // get data from sensors
+
+  float hum = getHum();
+  float temp = getTemp();
+
+  char hum_Buff[10];
+  char temp_Buff[10];
+  
+  int ndigits=6;  
+
+
+  // print on Serial Monitor
+
+  Serial.print(F("Humidity: "));
+  Serial.print(hum);
+  Serial.print(F("% Temperature: "));
+  Serial.print(temp);
+  Serial.println(F("°C "));
+
+  // print on Screen
+    
+  // Convert the float to a string, storing it in buf
+ 
+    snprintf(hum_Buff, sizeof(hum_Buff), "%f", hum);
+    snprintf(temp_Buff, sizeof(temp_Buff), "%f", temp);   
+        
+    screen.clearDisplay();
+    screen.display();    
+
+    printOnScreen(20,20,1,1,"Hum - ");
+    printOnScreen(45,20,1,1,hum_Buff);
+
+    printOnScreen(20,35,1,1,"Temp - ");
+    printOnScreen(45,35,1,1,temp_Buff);
+
+        
+    screen.clearDisplay();
+    screen.display();    
+
+
+  // Update sensor data in cloud
+
   StaticJsonDocument<200> doc;
 
-  doc["humidity"] = getHum();
-  doc["temperature"] = getTemp();
+  doc["humidity"] = hum;
+  doc["temperature"] = temp;
 
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
   publishOnMqtt(jsonBuffer, appMgr->conManager);
   // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
  //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-    
+    delay(1000);
 }
 
 
@@ -126,27 +184,12 @@ void initRGB(){
   //Serial.println("InitRGB : appManager.cpp");
  }
 
- void initBoard() {
-  
+ void initBoard() {  
   // Configuring Board pins
   initRGB();
 
  }
  
- void publishMessage(appManager * appMgr) {
-    
-
-  StaticJsonDocument<200> doc;
-  doc["humidity"] = HUMIDITY_Demo;
-  doc["temperature"] = TEMP_Demo;
-  char jsonBuffer[512];
-  serializeJson(doc, jsonBuffer); // print to client
-
-  //  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-
-  publishOnMqtt(jsonBuffer, appMgr->conManager);
-}
-
 
 // initialize the Scale
     

@@ -25,8 +25,7 @@ void connectCloud(appManager*);
 void broadcast_appMgr(appManager*);
 void checkConnections_and_reconnect(void * pvParameters);
 void setBoardWithLC(appManager*);
-void getSensorData_and_update(appManager*);
-void publishMessage(appManager*);
+void getSensorData_print_update(appManager*);
 void loop_mgr(appManager*);
 
 

@@ -49,13 +49,7 @@ void loop()
   //   return;
   // }
 
-  Serial.print(F("Humidity: "));
-  Serial.print(HUMIDITY_Demo);
-  Serial.print(F("% Temperature: "));
-  Serial.print(TEMP_Demo);
-  Serial.println(F("°C "));
-
-  publishMessage(&managr);
+  getSensorData_print_update(&managr);
   //client.loop();
   loop_mgr(&managr);
   delay(1000);
