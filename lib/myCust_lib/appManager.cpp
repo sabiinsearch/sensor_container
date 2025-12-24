@@ -65,7 +65,7 @@ void initScreen() {
   delay(100);
         screen.setTextSize(2);
         screen.setTextColor(SH110X_WHITE);
-        screen.setCursor(40,20);        
+        screen.setCursor(20,20);        
         screen.print(F("Hukam.."));
         screen.println();
         screen.display(); // actually display all of the above
