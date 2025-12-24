@@ -17,7 +17,8 @@ typedef struct {
 
 void appManager_ctor(appManager * const me); // constructor
 
-void initBoard();   
+void initBoard(); 
+void initScreen();  
 HX711 setLoadCell(appManager*);
 void connectCloud(appManager*);
 void broadcast_appMgr(appManager*);

@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <ArduinoJson.h>
 
+// libraries for Display
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_SH110X.h>
 
 // Custom Libraries
 //#include "app_config.h"
@@ -22,14 +27,20 @@
 
 connectionManager conManagerr;
 
+// Create display object with custom I2C
+Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
 Preferences pref;
 /* constructor implementation */
 
 void appManager_ctor(appManager * const me) {
-
+ 
+    // Start I2C on custom pins (for ESP32)
+  Wire.begin(SDA, SCL);
   
   initBoard();
   Serial.println("Board Initialized..");
+  initScreen();
 
   // me->scale = setLoadCell(me);
   // Serial.print("Scale set with appMgr.. ");
@@ -41,7 +52,17 @@ void appManager_ctor(appManager * const me) {
 }
 
 /* Function Implementation */
+void initScreen() {
 
+ //  Initialize the OLED display
+  if (!display.begin(ADD_OLED, 0x3C)) {
+    Serial.println(F("SSD1306 initialization failed"));
+    while (true);  // Stop execution if display fails to initialize
+  }
+  display.clearDisplay();
+  display.display();
+
+}
 void connectCloud(appManager* appMgr) {
       connectAWS(appMgr->conManager);
 }
