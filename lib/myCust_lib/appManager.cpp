@@ -41,7 +41,7 @@ void appManager_ctor(appManager * const me) {
   initBoard();
   Serial.println("Board Initialized..");
   initScreen();
-
+  Serial.println("Display Initialized.."); 
   // me->scale = setLoadCell(me);
   // Serial.print("Scale set with appMgr.. ");
   // // broadcast_appMgr(me);
