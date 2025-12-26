@@ -8,7 +8,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_SH110X.h>
-
+// #include <Fonts/FreeMonoBold9pt7b.h>
 
 //#include <Adafruit_BMP280.h> // Libraries for BMP280
 #include <DHT.h>             // Libraries for DHT22     
@@ -34,6 +34,7 @@ connectionManager conManagerr;
 // Create display object with custom I2C
 Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 bool screen_state = false;
+
 // Create BMP280 object
 //Adafruit_BMP280 bmp; // I2C
 #define DHT_pin      4
@@ -72,7 +73,7 @@ void appManager_ctor(appManager * const me) {
 /* Function Implementation */
 
  void displayWelcomeScreen() {
-        
+         
         screen.clearDisplay();
         screen.display();
         delay(100);
@@ -82,7 +83,7 @@ void appManager_ctor(appManager * const me) {
         screen.print(F("Hukam.."));
         screen.println();
         screen.display(); // actually display all of the above
-
+        
  }
 
 void readyScreen() {
@@ -92,11 +93,11 @@ void readyScreen() {
     screen.display();
 
    delay(100);
-   printOnScreen(20,20,1,1,"Hum  - ");
-   printOnScreen(20,35,1,1,"Temp - ");
-   printOnScreen(7,52,1,1,"Weight - ");
+   printOnScreen(20,5,1,1,"Hum  - ");
+   printOnScreen(20,20,1,1,"Temp - ");
+   printOnScreen(7,35,1,1,"Weight - ");
 
-  screen.display();
+   screen.display();   
 }
 
  void checkButtonPressed(appManager* appMgr) {
@@ -143,9 +144,22 @@ void readyScreen() {
     //   }
      
         
-     if((count_press >50) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
+     if((count_press >10) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
 
             Serial.println("Wifi Resetting.."); 
+
+//            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
+
+            screen.setCursor(45,55); 
+            // screen.setTextSize(1);
+            // screen.setFont(&FreeMonoBold9pt7b);
+            // screen.setTextColor(SH110X_BLACK);
+            screen.print("No WiFi");
+            screen.println();
+            screen.display(); // actually display all of the above
+            delay(20);
+
+            screen_state = false;
             digitalWrite(WIFI_LED,HIGH);
             digitalWrite(HEARTBEAT_LED,LOW);
             resetWifi(appMgr->conManager);      
@@ -197,7 +211,7 @@ void printOnScreen(int x, int y, int textSize, int textColor, String text) {
         screen.print(text);
         screen.println();
         screen.display(); // actually display all of the above
-      
+        delay(20);
 
 }
 
@@ -259,8 +273,8 @@ void getSensorData_print_update(appManager* appMgr) {
     
   // Convert the float to a string, storing it in buf
  
-    snprintf(hum_Buff, sizeof(hum_Buff), "%f", hum);
-    snprintf(temp_Buff, sizeof(temp_Buff), "%f", temp);   
+    snprintf(hum_Buff, sizeof(hum_Buff), "%.1f", hum);
+    snprintf(temp_Buff, sizeof(temp_Buff), "%.1f", temp);   
     snprintf(load_Buff, sizeof(load_Buff), "%d", load);   
     
     // screen.clearDisplay();
@@ -269,24 +283,29 @@ void getSensorData_print_update(appManager* appMgr) {
        readyScreen();
        screen_state = true;
     }
+    
+    if(WiFi.status() == WL_CONNECTED) {
+      screen.fillRect(20, 105, 70, 10, SH110X_BLACK); // To clear a specific area
+    }
+
+    screen.fillRect(65, 5, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.display();
+    // printOnScreen(20,20,1,1,"Hum  - ");
+    printOnScreen(65,5,1,1,hum_Buff);
+    printOnScreen(95,5,1,1,F("% "));
 
     screen.fillRect(65, 20, 15, 15, SH110X_BLACK); // To clear a specific area
     screen.display();
-    // printOnScreen(20,20,1,1,"Hum  - ");
-    printOnScreen(65,20,1,1,hum_Buff);
-    printOnScreen(95,20,1,1,F("% "));
-
-    screen.fillRect(65, 35, 15, 15, SH110X_BLACK); // To clear a specific area
-    screen.display();
     // printOnScreen(20,35,1,1,"Temp - ");
-    printOnScreen(65,35,1,1,temp_Buff); 
-    printOnScreen(95,35,1,1,F("°C"));
+    printOnScreen(65,20,1,1,temp_Buff); 
+    printOnScreen(95,20,1,1,F("°C"));
     
     // printOnScreen(7,52,1,1,"Weight - ");
-    screen.fillRect(65, 52, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.fillRect(65, 35, 15, 15, SH110X_BLACK); // To clear a specific area
     screen.display();
-    printOnScreen(65,52,1,1,load_Buff); 
-    printOnScreen(95,52,1,1,F("grams "));
+    printOnScreen(65,35,1,1,load_Buff); 
+
+    printOnScreen(95,35,1,1,F("grams "));
     screen.display();    
 
 
@@ -294,8 +313,8 @@ void getSensorData_print_update(appManager* appMgr) {
  
   StaticJsonDocument<200> doc;
 
-  doc["humidity"] = hum;
-  doc["temperature"] = temp;
+  doc["humidity"] = hum_Buff;
+  doc["temperature"] = temp_Buff;
   doc["Load"] = load;
 
   char jsonBuffer[512];
