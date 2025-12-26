@@ -29,7 +29,7 @@
 
 // DECLARE OTHER PARTS OF RECEIVER BOARD
 
-// #define SW_pin             21
+  #define reset_pin         12    
 
 // #define reset_pin          22
 

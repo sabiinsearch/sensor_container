@@ -7,16 +7,16 @@
 //  Dummy Sensor Data 
 #define TEMP_Demo      27.0
 #define HUMIDITY_Demo  105.0
-#define PRESSURE_DEMO  100.0
-#define LOAD_Demo      20
+#define LOAD_Demo      100
 
 /******************************* Do Not Edit / update these values      **************************************/
 //  Mqtt Configurations 
-    #define THINGNAME          "container_sensors"        // Change this
-    #define WIFI_SSID          "hukam"                    //change this
-    #define WIFI_PASSWORD      "guest@13"                 //change this
-    #define AWS_ENDPOINT       "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL
+    #define THINGNAME               "container_sensors"        // Change this
+    #define WIFI_SSID               "hukam"                    //change this
+    #define WIFI_PASSWORD           "guest@13"                 //change this
+    #define AWS_ENDPOINT            "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL
     #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"           //change this
     #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"           //change this
-    
+
+    #define PUBLILISH_INTERVAL  10000 
 #endif

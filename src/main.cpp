@@ -33,22 +33,12 @@ void setup()
   Serial.println("Initializing App Manager..");
   appManager_ctor(&managr);
 
-  connectCloud(&managr);
   // dht.begin();
 }
 
 void loop()
 {
-  // h = dht.readHumidity();
-  // t = dht.readTemperature();
-
-
-  // if (isnan(h) || isnan(t) )  // Check if any reads failed and exit early (to try again).
-  // {
-  //   Serial.println(F("Failed to read from DHT sensor!"));
-  //   return;
-  // }
-
+  checkButtonPressed(&managr);
   getSensorData_print_update(&managr);
   //client.loop();
   loop_mgr(&managr);

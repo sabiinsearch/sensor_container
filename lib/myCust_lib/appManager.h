@@ -19,7 +19,10 @@ void appManager_ctor(appManager * const me); // constructor
 
 void initBoard(); 
 void initScreen(); 
-void printOnScreen(int, int, int, int); 
+void initDHT(); 
+void displayWelcomeScreen();
+void readyScreen(); 
+void printOnScreen(int, int, int, int, String); 
 HX711 setLoadCell(appManager*);
 void connectCloud(appManager*);
 void broadcast_appMgr(appManager*);
@@ -27,6 +30,7 @@ void checkConnections_and_reconnect(void * pvParameters);
 void setBoardWithLC(appManager*);
 void getSensorData_print_update(appManager*);
 void loop_mgr(appManager*);
+void checkButtonPressed(appManager*);
 
 
 // functions to set LEDs as per status

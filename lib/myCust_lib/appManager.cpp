@@ -9,6 +9,10 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_SH110X.h>
 
+
+//#include <Adafruit_BMP280.h> // Libraries for BMP280
+#include <DHT.h>             // Libraries for DHT22     
+
 // Custom Libraries
 //#include "app_config.h"
 #include "appManager.h"
@@ -29,19 +33,33 @@ connectionManager conManagerr;
 
 // Create display object with custom I2C
 Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+bool screen_state = false;
+// Create BMP280 object
+//Adafruit_BMP280 bmp; // I2C
+#define DHT_pin      4
+#define DHT_type     DHT11
+
+DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
 Preferences pref;
+
 /* constructor implementation */
 
 void appManager_ctor(appManager * const me) {
  
     // Start I2C on custom pins (for ESP32)
   Wire.begin(SDA, SCL);
+
   
   initBoard();
   Serial.println("Board Initialized..");
-  initScreen();
+
+  initScreen();  
   Serial.println("Display Initialized.."); 
+
+  // initBMP280();
+  initDHT();
+  Serial.println("Sensor Initialized..");
   // me->scale = setLoadCell(me);
   // Serial.print("Scale set with appMgr.. ");
   // // broadcast_appMgr(me);
@@ -52,6 +70,110 @@ void appManager_ctor(appManager * const me) {
 }
 
 /* Function Implementation */
+
+ void displayWelcomeScreen() {
+        
+        screen.clearDisplay();
+        screen.display();
+        delay(100);
+        screen.setTextSize(2);
+        screen.setTextColor(SH110X_WHITE);
+        screen.setCursor(20,10);        
+        screen.print(F("Hukam.."));
+        screen.println();
+        screen.display(); // actually display all of the above
+
+ }
+
+void readyScreen() {
+ 
+       
+    screen.clearDisplay(); 
+    screen.display();
+
+   delay(100);
+   printOnScreen(20,20,1,1,"Hum  - ");
+   printOnScreen(20,35,1,1,"Temp - ");
+   printOnScreen(7,52,1,1,"Weight - ");
+
+  screen.display();
+}
+
+ void checkButtonPressed(appManager* appMgr) {
+  
+    if((digitalRead(reset_pin))==LOW) {   // check if the button is pressed
+        long press_start = millis();
+        long press_end = press_start;
+        int count_press = 0;
+
+    // count period of button pressed
+
+        while (digitalRead(reset_pin) == LOW) {
+          press_end = millis();
+          count_press = press_end-press_start;  
+          if(count_press>5000) {            
+            break;
+          }   
+        }
+
+            digitalWrite(reset_pin,HIGH); // unpress button        
+            Serial.print("Button pressed for: ");
+            Serial.println(count_press);
+
+   // Action as per time period of pressing button
+
+    //  if((count_press >0) && (count_press<1500)) {
+        
+    //     bool flag = true;  //  to check if control goes to On or Off only
+
+    //       if (appMgr->switch_val == 1){
+    //         Serial.println("Energy Monitoring Off..");
+    //         setSwitchOff(appMgr);
+    //         flag = false;
+    //         Serial.print("Flag is set to false..");
+    //       } 
+          
+    //       if((appMgr->switch_val == 0) && (flag==true)) {
+    //           Serial.println("Energy Monitoring On..");
+    //           setSwitchOn(appMgr);
+    //         }
+    //       delay(100);             
+    //       broadcast_appMgr(appMgr);
+
+    //   }
+     
+        
+     if((count_press >50) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
+
+            Serial.println("Wifi Resetting.."); 
+            digitalWrite(WIFI_LED,HIGH);
+            digitalWrite(HEARTBEAT_LED,LOW);
+            resetWifi(appMgr->conManager);      
+            connectWiFi(appMgr->conManager);
+
+     }
+
+    //  if((count_press >3400) && (count_press<6000)) {
+
+    //           setBoardWithLC(appMgr);
+    //  }
+
+   }
+    
+ }
+
+void initDHT() {
+//    DHT dht(DHT_pin, DHT_type);
+    dht.begin();
+}
+
+// void initBMP280() {
+//   if (!bmp.begin(0x76)) {
+//     Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
+//     while (1);
+//   }
+// }
+
 void initScreen() {
 
  //  Initialize the OLED display
@@ -60,19 +182,7 @@ void initScreen() {
     while (true);  // Stop execution if display fails to initialize
   }
 
-  screen.clearDisplay();
-  screen.display();
-  delay(100);
-        screen.setTextSize(2);
-        screen.setTextColor(SH110X_WHITE);
-        screen.setCursor(20,10);        
-        screen.print(F("Hukam.."));
-        screen.println();
-        screen.display(); // actually display all of the above
-//        delay(500);  
-        
-        // screen.clearDisplay();
-        // screen.display();
+  displayWelcomeScreen();
 
 }
 
@@ -92,8 +202,9 @@ void printOnScreen(int x, int y, int textSize, int textColor, String text) {
 }
 
 void connectCloud(appManager* appMgr) {
-      connectAWS(appMgr->conManager);
+      connectWiFi(appMgr->conManager);
 }
+
 
 void loop_mgr(appManager* appMgr) {
      loop_con(appMgr->conManager);
@@ -101,16 +212,16 @@ void loop_mgr(appManager* appMgr) {
 
 
 float getTemp() {
-    return TEMP_Demo;
+    return dht.readTemperature();
 }
 
 float getHum() {
-    return HUMIDITY_Demo;
+    return dht.readHumidity();
 }
 
-float getPressure() {
-    return PRESSURE_DEMO;
-}
+// float getPressure() {
+//     return bmp.readPressure() / 100.0F;
+// }
 
 int getLoad() {
     return LOAD_Demo;
@@ -127,11 +238,11 @@ void getSensorData_print_update(appManager* appMgr) {
   float temp = getTemp();
   int load = getLoad();
 
-  char hum_Buff[10];
-  char temp_Buff[10];
-  char load_Buff[10];
+  char hum_Buff[5];
+  char temp_Buff[5];
+  char load_Buff[5];
   
-  int ndigits=6;  
+  int ndigits=3;  
 
 
   // print on Serial Monitor
@@ -150,27 +261,37 @@ void getSensorData_print_update(appManager* appMgr) {
  
     snprintf(hum_Buff, sizeof(hum_Buff), "%f", hum);
     snprintf(temp_Buff, sizeof(temp_Buff), "%f", temp);   
-    snprintf(load_Buff, sizeof(load_Buff), "%f", load);   
+    snprintf(load_Buff, sizeof(load_Buff), "%d", load);   
     
-    screen.clearDisplay();
-    screen.display();           
+    // screen.clearDisplay();
+    // screen.display();  
+    if(!screen_state) {         
+       readyScreen();
+       screen_state = true;
+    }
 
-    printOnScreen(20,25,1,1,"Hum  - ");
-    printOnScreen(65,25,1,1,hum_Buff);
+    screen.fillRect(65, 20, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.display();
+    // printOnScreen(20,20,1,1,"Hum  - ");
+    printOnScreen(65,20,1,1,hum_Buff);
+    printOnScreen(95,20,1,1,F("% "));
+
+    screen.fillRect(65, 35, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.display();
+    // printOnScreen(20,35,1,1,"Temp - ");
+    printOnScreen(65,35,1,1,temp_Buff); 
+    printOnScreen(95,35,1,1,F("°C"));
     
-
-    printOnScreen(20,40,1,1,"Temp - ");
-    printOnScreen(65,40,1,1,temp_Buff); 
-
-    
-    printOnScreen(7,52,1,1,"Weight - ");
+    // printOnScreen(7,52,1,1,"Weight - ");
+    screen.fillRect(65, 52, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.display();
     printOnScreen(65,52,1,1,load_Buff); 
-    
+    printOnScreen(95,52,1,1,F("grams "));
     screen.display();    
 
 
   // Update sensor data in cloud
-
+ 
   StaticJsonDocument<200> doc;
 
   doc["humidity"] = hum;
@@ -200,6 +321,8 @@ void initRGB(){
 
  void initBoard() {  
   // Configuring Board pins
+  pinMode(reset_pin, OUTPUT);
+  digitalWrite(reset_pin,HIGH);
   initRGB();
 
  }
