@@ -79,7 +79,7 @@ void appManager_ctor(appManager * const me) {
         delay(100);
         screen.setTextSize(2);
         screen.setTextColor(SH110X_WHITE);
-        screen.setCursor(10,40);        
+        screen.setCursor(10,30);        
         screen.print(F("V E O R A"));
         screen.println();
         screen.display(); // actually display all of the above
