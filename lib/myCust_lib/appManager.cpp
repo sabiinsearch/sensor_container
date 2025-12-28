@@ -79,8 +79,8 @@ void appManager_ctor(appManager * const me) {
         delay(100);
         screen.setTextSize(2);
         screen.setTextColor(SH110X_WHITE);
-        screen.setCursor(20,10);        
-        screen.print(F("Hukam.."));
+        screen.setCursor(10,40);        
+        screen.print(F("V E O R A"));
         screen.println();
         screen.display(); // actually display all of the above
         
@@ -93,9 +93,12 @@ void readyScreen() {
     screen.display();
 
    delay(100);
-   printOnScreen(20,5,1,1,"Hum  - ");
-   printOnScreen(20,20,1,1,"Temp - ");
-   printOnScreen(7,35,1,1,"Weight - ");
+   printOnScreen(20,5,1,1,"HUM  - ");
+   printOnScreen(20,20,1,1,"TEMP - ");
+   printOnScreen(7,35,1,1,"WEIGHT - ");
+
+   printOnScreen(0,45,1,1,"--------------------");
+   printOnScreen(30,55,1,1,"V E O R A ");
 
    screen.display();   
 }
@@ -265,7 +268,7 @@ void getSensorData_print_update(appManager* appMgr) {
   Serial.print(hum);
   Serial.print(F("% Temperature: "));
   Serial.print(temp);
-  Serial.print(F("°C "));
+  Serial.print(F("C "));
   Serial.print(F("\tWeight: "));
   Serial.println(load);
 
@@ -294,14 +297,15 @@ void getSensorData_print_update(appManager* appMgr) {
     printOnScreen(65,5,1,1,hum_Buff);
     printOnScreen(95,5,1,1,F("% "));
 
-    screen.fillRect(65, 20, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
     screen.display();
     // printOnScreen(20,35,1,1,"Temp - ");
     printOnScreen(65,20,1,1,temp_Buff); 
-    printOnScreen(95,20,1,1,F("°C"));
+    printOnScreen(95,20,1,1,F("C"));
     
     // printOnScreen(7,52,1,1,"Weight - ");
     screen.fillRect(65, 35, 15, 15, SH110X_BLACK); // To clear a specific area
+    printOnScreen(0,45,1,1,"--------------------");
     screen.display();
     printOnScreen(65,35,1,1,load_Buff); 
 
