@@ -291,7 +291,11 @@ void getSensorData_print_update(appManager* appMgr) {
   float temp = dht.readTemperature();
   delay(100);
   
+  scale.power_up();
+  delay(10);
   float load = scale.get_units();
+  delay(10);
+  scale.power_down();
   // if(scale.is_ready()) {  
   //   load = scale.get_units();
   //   Serial.println(load);
