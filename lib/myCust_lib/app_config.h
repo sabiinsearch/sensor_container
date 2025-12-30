@@ -9,6 +9,9 @@
 #define HUMIDITY_Demo  105.0
 #define LOAD_Demo      100
 
+// For Load Cell
+#define CALIBRATION_FACTOR_LOADCELL 2230 // this calibration factor is adjusted according to my load cell
+
 /******************************* Do Not Edit / update these values      **************************************/
 //  Mqtt Configurations 
     #define THINGNAME               "container_sensors"        // Change this
@@ -19,4 +22,5 @@
     #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"           //change this
 
     #define PUBLILISH_INTERVAL  10000 
+    #define TIMEOUT_INTERVAL    5000
 #endif

@@ -9,6 +9,8 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_SH110X.h>
 // #include <Fonts/FreeMonoBold9pt7b.h>
+ #include "HX711.h"
+//#include <HX711_ADC.h>
 
 //#include <Adafruit_BMP280.h> // Libraries for BMP280
 #include <DHT.h>             // Libraries for DHT22     
@@ -24,12 +26,14 @@
 #include <Arduino.h> 
 #include "EEPROM.h"
 #include "Preferences.h"
-#include "HX711.h"
+// #include "HX711.h"
 #include "soc/rtc.h"
 #include "esp32-hal-cpu.h"
 
 
 connectionManager conManagerr;
+HX711  scale(SDA, SCL); // HX711 variable
+
 
 // Create display object with custom I2C
 Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -43,6 +47,14 @@ bool screen_state = false;
 DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
 Preferences pref;
+
+
+   void initLoadCell(appManager* appMgr) {        
+        scale.begin(SDA, SCL);
+        scale.set_scale(CALIBRATION_FACTOR_LOADCELL);
+        scale.tare();
+        Serial.print("Scale Initialized... ");
+   }
 
 /* constructor implementation */
 
@@ -64,6 +76,8 @@ void appManager_ctor(appManager * const me) {
   // me->scale = setLoadCell(me);
   // Serial.print("Scale set with appMgr.. ");
   // // broadcast_appMgr(me);
+   initLoadCell(me);
+   Serial.println("Load Cell Initialized..");
 
   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
@@ -71,6 +85,7 @@ void appManager_ctor(appManager * const me) {
 }
 
 /* Function Implementation */
+
 
  void displayWelcomeScreen() {
          
@@ -93,14 +108,18 @@ void readyScreen() {
     screen.display();
 
    delay(100);
+   
    printOnScreen(20,5,1,1,"HUM  - ");
+
    printOnScreen(20,20,1,1,"TEMP - ");
+
    printOnScreen(7,35,1,1,"WEIGHT - ");
 
    printOnScreen(0,45,1,1,"--------------------");
+
    printOnScreen(30,55,1,1,"V E O R A ");
 
-   screen.display();   
+   screen.display();   // actually display all of the above
 }
 
  void checkButtonPressed(appManager* appMgr) {
@@ -153,11 +172,11 @@ void readyScreen() {
 
 //            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
 
-            screen.setCursor(45,55); 
+            screen.setCursor(85,65); 
             // screen.setTextSize(1);
             // screen.setFont(&FreeMonoBold9pt7b);
             // screen.setTextColor(SH110X_BLACK);
-            screen.print("No WiFi");
+            screen.print("*");
             screen.println();
             screen.display(); // actually display all of the above
             delay(20);
@@ -174,6 +193,10 @@ void readyScreen() {
 
     //           setBoardWithLC(appMgr);
     //  }
+     // Explicitly free the memory when done
+      // free(press_start);
+      // free(press_end);
+      // free(count_press);
 
    }
     
@@ -205,16 +228,11 @@ void initScreen() {
 
 void printOnScreen(int x, int y, int textSize, int textColor, String text) {
         
-        // screen.clearDisplay();
-        // screen.display();
-        // delay(100);
         screen.setCursor(x,y); 
         screen.setTextSize(textSize);
         screen.setTextColor(textColor);
         screen.print(text);
         screen.println();
-        screen.display(); // actually display all of the above
-        delay(20);
 
 }
 
@@ -228,21 +246,37 @@ void loop_mgr(appManager* appMgr) {
 }
 
 
-float getTemp() {
-    return dht.readTemperature();
-}
+// float getTemp() {
+//     return dht.readTemperature();
+// }
 
-float getHum() {
-    return dht.readHumidity();
-}
+// float getHum() {
+//     return dht.readHumidity();
+// }
 
 // float getPressure() {
 //     return bmp.readPressure() / 100.0F;
 // }
 
-int getLoad() {
-    return LOAD_Demo;
-}
+// float getLoad(appManager* appMgr) {
+  
+//    float units; 
+//      if(appMgr->scale.is_ready()) {
+//       units = appMgr->scale.get_units(10);
+//      } 
+    
+//   // if (units < 0)
+//   // {
+//   //   units = 0.00;
+//   // }
+// //  float ounces = units * 0.035274;
+//   // Serial.print(units);
+//   // Serial.print(" grams");
+//      return units;
+//   //  return LOAD_Demo; // for demo purpose;
+    
+    
+// }
 
 
 //function to get sensor data and update appManager
@@ -250,27 +284,38 @@ int getLoad() {
 void getSensorData_print_update(appManager* appMgr) {
    
   // get data from sensors
+   
+  float hum = dht.readHumidity();
+  delay(100);
 
-  float hum = getHum();
-  float temp = getTemp();
-  int load = getLoad();
+  float temp = dht.readTemperature();
+  delay(100);
+  
+  float load = scale.get_units();
+  // if(scale.is_ready()) {  
+  //   load = scale.get_units();
+  //   Serial.println(load);
+  // }
+     
 
-  char hum_Buff[5];
-  char temp_Buff[5];
-  char load_Buff[5];
+  delay(100); 
+  
+  char hum_Buff[6];
+  char temp_Buff[6];
+  char load_Buff[6];
   
   int ndigits=3;  
 
 
   // print on Serial Monitor
 
-  Serial.print(F("Humidity: "));
+  Serial.print(F("H - "));
   Serial.print(hum);
-  Serial.print(F("% Temperature: "));
+  Serial.print(F("%  T - "));
   Serial.print(temp);
-  Serial.print(F("C "));
-  Serial.print(F("\tWeight: "));
-  Serial.println(load);
+  Serial.print(F("C  W - "));  
+  Serial.print(load);
+  Serial.println(F(" g"));
 
   // print on Screen
     
@@ -278,7 +323,8 @@ void getSensorData_print_update(appManager* appMgr) {
  
     snprintf(hum_Buff, sizeof(hum_Buff), "%.1f", hum);
     snprintf(temp_Buff, sizeof(temp_Buff), "%.1f", temp);   
-    snprintf(load_Buff, sizeof(load_Buff), "%d", load);   
+    snprintf(load_Buff, sizeof(load_Buff), "%.1f", load);   
+    
     
     // screen.clearDisplay();
     // screen.display();  
@@ -291,42 +337,75 @@ void getSensorData_print_update(appManager* appMgr) {
       screen.fillRect(20, 105, 70, 10, SH110X_BLACK); // To clear a specific area
     }
 
-    screen.fillRect(65, 5, 15, 15, SH110X_BLACK); // To clear a specific area
+    screen.fillRect(65, 5, 15, 30, SH110X_BLACK); // To clear a specific area
     screen.display();
-    // printOnScreen(20,20,1,1,"Hum  - ");
-    printOnScreen(65,5,1,1,hum_Buff);
-    printOnScreen(95,5,1,1,F("% "));
-
-    screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
-    screen.display();
-    // printOnScreen(20,35,1,1,"Temp - ");
-    printOnScreen(65,20,1,1,temp_Buff); 
-    printOnScreen(95,20,1,1,F("C"));
     
-    // printOnScreen(7,52,1,1,"Weight - ");
-    screen.fillRect(65, 35, 15, 15, SH110X_BLACK); // To clear a specific area
-    printOnScreen(0,45,1,1,"--------------------");
-    screen.display();
-    printOnScreen(65,35,1,1,load_Buff); 
+//    printOnScreen(65,5,1,1,hum_Buff);
+        screen.setCursor(65,5); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(hum_Buff);
+        screen.println();
 
-    printOnScreen(95,35,1,1,F("grams "));
-    screen.display();    
+//    printOnScreen(95,5,1,1,F("% "));
+        screen.setCursor(95,5); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(F("% "));
+        screen.println();
 
+    // screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
+    // screen.display();
+    
+//   printOnScreen(65,20,1,1,temp_Buff); 
+        screen.setCursor(65,20); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(temp_Buff);
+        screen.println();
+    
+//  printOnScreen(95,20,1,1,F("C"));
+        screen.setCursor(95,20); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(F("C"));
+        screen.println();
+
+    // screen.fillRect(65, 35, 15, 10, SH110X_BLACK); // To clear a specific area
+    // screen.display();
+    
+  //  printOnScreen(65,35,1,1,load_Buff); 
+        screen.setCursor(65,35); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(load_Buff);
+        screen.println();
+
+   //printOnScreen(95,35,1,1,F("grams "));
+        screen.setCursor(95,35); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(F("grams "));
+        screen.println();
+
+   //printOnScreen(0,45,1,1,"--------------------");
+
+     screen.display(); // actually display all of the above   
 
   // Update sensor data in cloud
  
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<100> doc;
 
   doc["humidity"] = hum_Buff;
   doc["temperature"] = temp_Buff;
-  doc["Load"] = load;
+  doc["Load"] = load_Buff;
 
-  char jsonBuffer[512];
+  char jsonBuffer[150];
   serializeJson(doc, jsonBuffer); // print to client
   publishOnMqtt(jsonBuffer, appMgr->conManager);
   // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
  //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-    delay(1000);
+      
 }
 
 
