@@ -6,7 +6,8 @@
 #include "WiFi.h"
 
 // Others
-
+// #include <nvs.h>
+// #include <nvs_flash.h>
 
 
 // my libraries
@@ -27,30 +28,26 @@ appManager managr;
 
 void setup()
 {
+
+  // Change from 2048 to 4096 or higher
+//xTaskCreate(TaskFunction, "ScaleTask", 4096, NULL, 1, NULL);
+
   Serial.begin(115200);
  
     // Initiating Manager
-  Serial.println("Initializing App Manager..");
+  //Serial.println("Initializing App Manager..");
   appManager_ctor(&managr);
+  Serial.println("All Systems Initialized..");
 
-  connectCloud(&managr);
-  // dht.begin();
+   loop_mgr(&managr);
 }
 
 void loop()
 {
-  // h = dht.readHumidity();
-  // t = dht.readTemperature();
-
-
-  // if (isnan(h) || isnan(t) )  // Check if any reads failed and exit early (to try again).
-  // {
-  //   Serial.println(F("Failed to read from DHT sensor!"));
-  //   return;
-  // }
-
+    
   getSensorData_print_update(&managr);
+  checkButtonPressed(&managr);
   //client.loop();
-  loop_mgr(&managr);
-  delay(1000);
+ 
+  delay(500);
 }

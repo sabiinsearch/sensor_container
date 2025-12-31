@@ -42,6 +42,8 @@ char server[50] = AWS_ENDPOINT;
 connectionManager * const connectionManager_ctor(connectionManager * const me ) {
    
   //  initConfig(me);
+   connectWiFi(me);
+   connectAWS(me);
    return me;
 }
 
@@ -66,19 +68,12 @@ void publishOnMqtt(char* data, connectionManager* con) {
    pub_sub_client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer_to_cloud);
 
 }
+
 void connectAWS(connectionManager * con) {
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
-  Serial.println("Connecting to Wi-Fi");
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-
-
+  // WiFi.mode(WIFI_STA);
+  // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
+  // Serial.println("Connecting to Wi-Fi");
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
@@ -126,7 +121,7 @@ void initWiFi() {
 
 void reconnectWiFi(connectionManager  * con){
   bool res;
-  res = wm.autoConnect("Tank_Board"); // anonymous ap
+  res = wm.autoConnect("myContainer"); // anonymous ap
     if(!res) {
         con->Wifi_status = false;
         digitalWrite(WIFI_LED,HIGH);
@@ -146,9 +141,15 @@ void reconnectWiFi(connectionManager  * con){
 bool connectWiFi(connectionManager * con) {
   bool res;
   digitalWrite(HEARTBEAT_LED,LOW);  
-  wm.setConnectTimeout(120);
-  res = wm.autoConnect("Tank"); // auto generated AP name from chipid
-  
+  wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
+  // wm.setConnectTimeout(TIMEOUT_INTERVAL);
+  res = wm.autoConnect("myContainer"); // auto generated AP name from chipid
+    while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+
     if(res) {
       //if you get here you have connected to the WiFi         
         con->Wifi_status = true;
@@ -161,6 +162,8 @@ bool connectWiFi(connectionManager * con) {
 
 void resetWifi(connectionManager * con) {
     con->Wifi_status = false;
+    // wm.setConnectTimeout(TIMEOUT_INTERVAL);
+    wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
     digitalWrite(WIFI_LED,HIGH);
 }
