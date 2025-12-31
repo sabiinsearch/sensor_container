@@ -141,7 +141,8 @@ void reconnectWiFi(connectionManager  * con){
 bool connectWiFi(connectionManager * con) {
   bool res;
   digitalWrite(HEARTBEAT_LED,LOW);  
-  wm.setConnectTimeout(TIMEOUT_INTERVAL);
+  wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
+  // wm.setConnectTimeout(TIMEOUT_INTERVAL);
   res = wm.autoConnect("myContainer"); // auto generated AP name from chipid
     while (WiFi.status() != WL_CONNECTED)
   {
@@ -161,7 +162,8 @@ bool connectWiFi(connectionManager * con) {
 
 void resetWifi(connectionManager * con) {
     con->Wifi_status = false;
-    wm.setConnectTimeout(TIMEOUT_INTERVAL);
+    // wm.setConnectTimeout(TIMEOUT_INTERVAL);
+    wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
     digitalWrite(WIFI_LED,HIGH);
 }

@@ -53,7 +53,7 @@ Preferences pref;
         scale.begin(SDA, SCL);
         scale.set_scale(CALIBRATION_FACTOR_LOADCELL);
         scale.tare();
-        Serial.print("Scale Initialized... ");
+        // Serial.print("Scale Initialized... ");
    }
 
 /* constructor implementation */
@@ -286,29 +286,46 @@ void getSensorData_print_update(appManager* appMgr) {
   // get data from sensors
    
   float hum = dht.readHumidity();
-  delay(100);
+  delay(10);
 
   float temp = dht.readTemperature();
-  delay(100);
+  delay(10);
   
+  float load; 
   scale.power_up();
-  delay(10);
-  float load = scale.get_units();
-  delay(10);
+  //delay(500);
+  initLoadCell(appMgr);
+  while(!scale.is_ready()) {
+
+  }
+  // if(scale.is_ready()) {  
+    load = scale.get_units(10);
+    if (load < 0)
+    {
+      load = 0.00;
+    }    
+  //  delay(500);
+  //  Serial.println(load);
+  // }
+  
   scale.power_down();
+  
+
+
   // if(scale.is_ready()) {  
   //   load = scale.get_units();
   //   Serial.println(load);
   // }
-     
+  
+  // char hum_Buff[6];
+  // char temp_Buff[6];
+  // char load_Buff[15];
+  
+  char *hum_Buff = (char*)malloc(100 * sizeof(char));
+  char *temp_Buff = (char*)malloc(100 * sizeof(char));
+  char *load_Buff = (char*)malloc(100 * sizeof(char));
 
-  delay(100); 
-  
-  char hum_Buff[6];
-  char temp_Buff[6];
-  char load_Buff[6];
-  
-  int ndigits=3;  
+  int ndigits=5;  
 
 
   // print on Serial Monitor
@@ -325,11 +342,18 @@ void getSensorData_print_update(appManager* appMgr) {
     
   // Convert the float to a string, storing it in buf
  
-    snprintf(hum_Buff, sizeof(hum_Buff), "%.1f", hum);
-    snprintf(temp_Buff, sizeof(temp_Buff), "%.1f", temp);   
-    snprintf(load_Buff, sizeof(load_Buff), "%.1f", load);   
-    
-    
+    snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
+    snprintf(temp_Buff, sizeof(temp_Buff), "%.4f", temp);   
+    snprintf(load_Buff, sizeof(load_Buff), "%.4f", load);   
+     
+    memset(&hum, 0, sizeof(hum));
+    memset(&temp, 0, sizeof(temp));
+    memset(&load, 0, sizeof(load));
+
+    hum = NULL;
+    temp = NULL;
+    load = NULL;
+
     // screen.clearDisplay();
     // screen.display();  
     if(!screen_state) {         
@@ -375,7 +399,7 @@ void getSensorData_print_update(appManager* appMgr) {
         screen.print(F("C"));
         screen.println();
 
-    // screen.fillRect(65, 35, 15, 10, SH110X_BLACK); // To clear a specific area
+     screen.fillRect(65, 35, 20, 10, SH110X_BLACK); // To clear a specific area
     // screen.display();
     
   //  printOnScreen(65,35,1,1,load_Buff); 
@@ -409,7 +433,21 @@ void getSensorData_print_update(appManager* appMgr) {
   publishOnMqtt(jsonBuffer, appMgr->conManager);
   // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
  //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-      
+        
+  // Serial.println(jsonBuffer);
+
+  // Free the allocated memory
+  memset(hum_Buff, 0, 100);
+  memset(temp_Buff, 0, 100);
+  memset(load_Buff, 0, 100);  
+
+  free(hum_Buff);
+  free(temp_Buff);
+  free(load_Buff);
+
+  hum_Buff = NULL;
+  temp_Buff = NULL; 
+  load_Buff = NULL;
 }
 
 
@@ -423,12 +461,20 @@ void initRGB(){
   digitalWrite(MQTT_LED,HIGH);
 
   //Serial.println("InitRGB : appManager.cpp");
+  
  }
 
  void initBoard() {  
   // Configuring Board pins
   pinMode(reset_pin, OUTPUT);
   digitalWrite(reset_pin,HIGH);
+
+  pinMode(SDA, INPUT_PULLUP);
+  pinMode(SCL, INPUT_PULLUP);
+
+  digitalWrite(SDA, HIGH);
+  digitalWrite(SCL, HIGH);
+
   initRGB();
 
  }
