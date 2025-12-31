@@ -343,7 +343,7 @@ void getSensorData_print_update(appManager* appMgr) {
   // Convert the float to a string, storing it in buf
  
     snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
-    snprintf(temp_Buff, sizeof(temp_Buff), "%.4f", temp);   
+    snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temp);   
     snprintf(load_Buff, sizeof(load_Buff), "%.4f", load);   
      
     memset(&hum, 0, sizeof(hum));
