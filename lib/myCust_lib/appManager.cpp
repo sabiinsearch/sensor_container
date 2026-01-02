@@ -397,9 +397,9 @@ void getSensorData_print_update(appManager* appMgr) {
   for(counter = 0;counter<45;counter++)
   {  
     mpu.getEvent(&a, &g, &temp);
-    delay(20);  
+    delay(10);  
   }
-
+  delay(10);
   float x_now,y_now;
 
  // Display data on screen if change in x and y
@@ -426,22 +426,10 @@ void getSensorData_print_update(appManager* appMgr) {
     {
       load = 0.00;
     }    
-  //  delay(500);
-  //  Serial.println(load);
-  // }
-  
+
   scale.power_down();
   
-
-  // if(scale.is_ready()) {  
-  //   load = scale.get_units();
-  //   Serial.println(load);
-  // }
-  
-  // char hum_Buff[6];
-  // char temp_Buff[6];
-  // char load_Buff[15];
-  
+ 
   char *hum_Buff = (char*)malloc(100 * sizeof(char));
   char *temp_Buff = (char*)malloc(100 * sizeof(char));
   char *load_Buff = (char*)malloc(100 * sizeof(char));
@@ -493,7 +481,7 @@ void getSensorData_print_update(appManager* appMgr) {
     // screen.display();  
 
 
-if(((x_now) > x_start + 1) || ((x_now)<x_start-1) || ((y_now)>y_start+1) || ((y_now)<y_start-1)) {
+if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
    displayOn = true; 
 }
 
