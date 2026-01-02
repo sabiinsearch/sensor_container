@@ -185,6 +185,12 @@ void appManager_ctor(appManager * const me) {
 
   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
+  
+  // clear Screen after Welcome
+  
+       delay(1000);
+       screen.clearDisplay();
+       screen.display();
 
 }
 
