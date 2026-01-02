@@ -76,10 +76,10 @@ Preferences pref;
         }
   }
 
-  for(counter = 0;counter<45:counter++)
+  for(counter = 0;counter<45;counter++)
   {  
-  mpu.getEvent(&a, &g, &temp);
-  delay(20);  
+    mpu.getEvent(&a, &g, &temp);
+    delay(20);  
   }
        
   // Storing x and y at start     
@@ -147,7 +147,7 @@ Preferences pref;
     break;
   }
 
-   }
+  }
 
    void initLoadCell(appManager* appMgr) {        
         scale.begin(SDA, SCL);
@@ -394,10 +394,10 @@ void getSensorData_print_update(appManager* appMgr) {
   // get data from sensors
 
   /* Get new sensor events with the readings */
-  for(counter = 0;counter<45:counter++)
+  for(counter = 0;counter<45;counter++)
   {  
-  mpu.getEvent(&a, &g, &temp);
-  delay(20);  
+    mpu.getEvent(&a, &g, &temp);
+    delay(20);  
   }
 
   float x_now,y_now;
