@@ -490,6 +490,9 @@ void getSensorData_print_update(appManager* appMgr) {
 if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
    displayOn = true; 
    displayOn_start = millis();
+   
+   x_start = x_now;
+   y_start = y_now;
 }
 
 if(displayOn) {  
@@ -576,10 +579,7 @@ if(displayOn) {
      
      displayOn_start = 0; 
      
-     displayOn = false;     // set Display off
-     
-    x_start = x_now;
-    y_start = y_now;
+     displayOn = false;     // set Display off     
 
      screen.clearDisplay();  // Clear Display
      screen.display();
