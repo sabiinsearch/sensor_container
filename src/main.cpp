@@ -46,6 +46,7 @@ void loop()
 {
     
   getSensorData_print_update(&managr);
+  
   checkButtonPressed(&managr);
   //client.loop();
  

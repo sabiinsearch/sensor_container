@@ -45,11 +45,17 @@ Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, O
 
 // Create Gyro Sensor object
 Adafruit_MPU6050 mpu;
+sensors_event_t a, g, temp;  // to store movemets
 
 bool screen_state = false;
 
-bool displayOn = true;
+bool displayOn = false;
 
+long displayOn_start;
+//float x_now,y_now,x_pre,y_prev;
+float x_start,y_start;
+
+int counter;
 
 // Create BMP280 object
 //Adafruit_BMP280 bmp; // I2C
@@ -61,13 +67,25 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 Preferences pref;
    
   void initGyroSensor(appManager* appMgr) {
-       if (!mpu.begin()) {
-        Serial.println("Failed to find MPU6050 chip");
+
+
+  if (!mpu.begin()) {
+      Serial.println("Failed to find MPU6050 chip");
         while (1) {
           delay(10);
         }
-       }
+  }
 
+  for(counter = 0;counter<45:counter++)
+  {  
+  mpu.getEvent(&a, &g, &temp);
+  delay(20);  
+  }
+       
+  // Storing x and y at start     
+  x_start = a.acceleration.x/0.10;
+  y_start = a.acceleration.y/0.10;
+  
 
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   Serial.print("Accelerometer range set to: ");
@@ -162,6 +180,7 @@ void appManager_ctor(appManager * const me) {
    Serial.println("Load Cell Initialized..");
 
    initGyroSensor(me);
+  
    Serial.println("Gyro Sensor Initialized..");
 
   me->conManager = connectionManager_ctor(&conManagerr);
@@ -311,8 +330,8 @@ void initScreen() {
     while (true);  // Stop execution if display fails to initialize
   }
 
-  displayWelcomeScreen();
-
+  displayWelcomeScreen(); 
+  
 }
 
 void printOnScreen(int x, int y, int textSize, int textColor, String text) {
@@ -375,8 +394,18 @@ void getSensorData_print_update(appManager* appMgr) {
   // get data from sensors
 
   /* Get new sensor events with the readings */
-  sensors_event_t a, g, temp;
+  for(counter = 0;counter<45:counter++)
+  {  
   mpu.getEvent(&a, &g, &temp);
+  delay(20);  
+  }
+
+  float x_now,y_now;
+
+ // Display data on screen if change in x and y
+ x_now = a.acceleration.x/.10;
+ y_now = a.acceleration.y/.10;
+
    
   float hum = dht.readHumidity();
   delay(10);
@@ -403,7 +432,6 @@ void getSensorData_print_update(appManager* appMgr) {
   
   scale.power_down();
   
- 
 
   // if(scale.is_ready()) {  
   //   load = scale.get_units();
@@ -432,23 +460,18 @@ void getSensorData_print_update(appManager* appMgr) {
   Serial.println(F(" g"));
 
   /* Print out the values */
-  Serial.print("Acceleration X: ");
-  Serial.print(a.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a.acceleration.z);
-  Serial.print(" m/s^2 \t");
+  Serial.print(F(" Initial x: "));
+  Serial.print(x_start);
+  Serial.print(F(", y: "));
+  Serial.print(y_start);
+  
+  Serial.print(F(" \t"));
 
-
-  Serial.print("Rotation X: ");
-  Serial.print(g.gyro.x);
-  Serial.print(", Y: ");
-  Serial.print(g.gyro.y);
-  Serial.print(", Z: ");
-  Serial.print(g.gyro.z);
-  Serial.println(" rad/s");
-
+  Serial.print(F(" X: "));
+  Serial.print(x_now);
+  Serial.print(F(", Y: "));
+  Serial.println(y_now);
+   
 
   // print on Screen
     
@@ -468,6 +491,12 @@ void getSensorData_print_update(appManager* appMgr) {
 
     // screen.clearDisplay();
     // screen.display();  
+
+
+if(((x_now) > x_start + 1) || ((x_now)<x_start-1) || ((y_now)>y_start+1) || ((y_now)<y_start-1)) {
+   displayOn = true; 
+}
+
 if(displayOn) {  
  
    if((WiFi.status() != WL_CONNECTED)) {   // Print Not connected symbol "." 
@@ -577,7 +606,6 @@ if(displayOn) {
   load_Buff = NULL;
  
 }
-
 
 void initRGB(){
   pinMode(HEARTBEAT_LED, OUTPUT);

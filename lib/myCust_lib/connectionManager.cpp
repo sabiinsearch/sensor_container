@@ -42,8 +42,8 @@ char server[50] = AWS_ENDPOINT;
 connectionManager * const connectionManager_ctor(connectionManager * const me ) {
    
   //  initConfig(me);
-  //  connectWiFi(me);
-  //  connectAWS(me);
+   connectWiFi(me);
+   connectAWS(me);
    return me;
 }
 
