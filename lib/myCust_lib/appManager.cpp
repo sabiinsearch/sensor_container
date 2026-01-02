@@ -187,7 +187,7 @@ void appManager_ctor(appManager * const me) {
   Serial.println("Connection Manager set with App Manager");
   
   // clear Screen after Welcome
-  
+
        delay(1000);
        screen.clearDisplay();
        screen.display();
@@ -505,6 +505,7 @@ if(displayOn) {
             delay(20);
 
    }  
+
     if(!screen_state) {         
        readyScreen();
        screen_state = true;
@@ -567,8 +568,17 @@ if(displayOn) {
 
    //printOnScreen(0,45,1,1,"--------------------");
 
-     screen.display(); // actually display all of the above   
-    
+     screen.display(); // actually display all of the above 
+     delay(DISPLAY_TIME);  
+     displayOn = false;     // set Display off
+     
+    x_start = x_now;
+    y_start = y_now;
+
+     screen.clearDisplay();  // Clear Display
+     screen.display();
+     screen_state = false;
+
   }
   // Update sensor data in cloud
  
