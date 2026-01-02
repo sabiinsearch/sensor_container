@@ -489,6 +489,7 @@ void getSensorData_print_update(appManager* appMgr) {
 
 if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
    displayOn = true; 
+   displayOn_start = millis();
 }
 
 if(displayOn) {  
@@ -569,7 +570,12 @@ if(displayOn) {
    //printOnScreen(0,45,1,1,"--------------------");
 
      screen.display(); // actually display all of the above 
-     delay(DISPLAY_TIME);  
+
+    //  delay(DISPLAY_TIME);  
+    if((millis()-displayOn_start) > DISPLAY_TIME) {
+     
+     displayOn_start = 0; 
+     
      displayOn = false;     // set Display off
      
     x_start = x_now;
@@ -578,6 +584,7 @@ if(displayOn) {
      screen.clearDisplay();  // Clear Display
      screen.display();
      screen_state = false;
+    }
 
   }
   // Update sensor data in cloud
