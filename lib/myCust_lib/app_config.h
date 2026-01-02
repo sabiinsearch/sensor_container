@@ -23,5 +23,5 @@
 
     #define PUBLILISH_INTERVAL  10000 
     #define TIMEOUT_INTERVAL    2000
-    #define DISPLAY_TIME        30000
+    #define DISPLAY_TIME        10000
 #endif
