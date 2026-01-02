@@ -164,6 +164,7 @@ void appManager_ctor(appManager * const me) {
   Wire.begin(SDA, SCL);
 
   
+
   initBoard();
   Serial.println("Board Initialized..");
 
@@ -183,9 +184,12 @@ void appManager_ctor(appManager * const me) {
   
    Serial.println("Gyro Sensor Initialized..");
 
-  me->conManager = connectionManager_ctor(&conManagerr);
+
+   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
   
+  
+
   // clear Screen after Welcome
 
        delay(1000);
@@ -403,7 +407,7 @@ void getSensorData_print_update(appManager* appMgr) {
   for(counter = 0;counter<45;counter++)
   {  
     mpu.getEvent(&a, &g, &temp);
-    delay(10);  
+    delay(5);  
   }
   delay(10);
   float x_now,y_now;
@@ -506,7 +510,7 @@ if(displayOn) {
             screen.print(".");
             screen.println();
             screen.display(); // actually display all of the above
-            delay(20);
+            delay(10);
 
    }  
 

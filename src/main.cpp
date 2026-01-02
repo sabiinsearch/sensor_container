@@ -49,6 +49,5 @@ void loop()
   
   checkButtonPressed(&managr);
   //client.loop();
- 
-  delay(500);
+  
 }
