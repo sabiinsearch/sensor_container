@@ -42,8 +42,10 @@ char server[50] = AWS_ENDPOINT;
 connectionManager * const connectionManager_ctor(connectionManager * const me ) {
    
   //  initConfig(me);
+   //resetWifi(me);       // To Reset Wifi
    connectWiFi(me);
    connectAWS(me);
+
    return me;
 }
 
@@ -165,6 +167,7 @@ void resetWifi(connectionManager * con) {
     // wm.setConnectTimeout(TIMEOUT_INTERVAL);
     wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
+    // ESP.restart();
     digitalWrite(WIFI_LED,HIGH);
 }
 

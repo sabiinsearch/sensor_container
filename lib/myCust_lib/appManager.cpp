@@ -8,9 +8,13 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_SH110X.h>
-// #include <Fonts/FreeMonoBold9pt7b.h>
+
+// Library for Load Sensor
  #include "HX711.h"
-//#include <HX711_ADC.h>
+
+ // Library for Gyro Sensor
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
 
 //#include <Adafruit_BMP280.h> // Libraries for BMP280
 #include <DHT.h>             // Libraries for DHT22     
@@ -21,7 +25,7 @@
 #include "connectionManager.h"
 
 #include "receiverBoard.h"
-#include "sensor.h"
+// #include "sensor.h"
 // Libraries for Load Cell
 #include <Arduino.h> 
 #include "EEPROM.h"
@@ -32,12 +36,26 @@
 
 
 connectionManager conManagerr;
-HX711  scale(SDA, SCL); // HX711 variable
 
+// Create Load Cell 
+HX711  scale(SDA, SCL); 
 
 // Create display object with custom I2C
 Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// Create Gyro Sensor object
+Adafruit_MPU6050 mpu;
+sensors_event_t a, g, temp;  // to store movemets
+
 bool screen_state = false;
+
+bool displayOn = false;
+
+long displayOn_start;
+//float x_now,y_now,x_pre,y_prev;
+float x_start,y_start;
+
+int counter;
 
 // Create BMP280 object
 //Adafruit_BMP280 bmp; // I2C
@@ -47,7 +65,89 @@ bool screen_state = false;
 DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
 Preferences pref;
+   
+  void initGyroSensor(appManager* appMgr) {
 
+
+  if (!mpu.begin()) {
+      Serial.println("Failed to find MPU6050 chip");
+        while (1) {
+          delay(10);
+        }
+  }
+
+  for(counter = 0;counter<45;counter++)
+  {  
+    mpu.getEvent(&a, &g, &temp);
+    delay(20);  
+  }
+       
+  // Storing x and y at start     
+  x_start = a.acceleration.x/0.10;
+  y_start = a.acceleration.y/0.10;
+  
+
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+  Serial.print("Accelerometer range set to: ");
+  switch (mpu.getAccelerometerRange()) {
+  case MPU6050_RANGE_2_G:
+    Serial.println("+-2G");
+    break;
+  case MPU6050_RANGE_4_G:
+    Serial.println("+-4G");
+    break;
+  case MPU6050_RANGE_8_G:
+    Serial.println("+-8G");
+    break;
+  case MPU6050_RANGE_16_G:
+    Serial.println("+-16G");
+    break;
+  }
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  Serial.print("Gyro range set to: ");
+  switch (mpu.getGyroRange()) {
+  case MPU6050_RANGE_250_DEG:
+    Serial.println("+- 250 deg/s");
+    break;
+  case MPU6050_RANGE_500_DEG:
+    Serial.println("+- 500 deg/s");
+    break;
+  case MPU6050_RANGE_1000_DEG:
+    Serial.println("+- 1000 deg/s");
+    break;
+  case MPU6050_RANGE_2000_DEG:
+    Serial.println("+- 2000 deg/s");
+    break;
+  }
+
+
+  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+  Serial.print("Filter bandwidth set to: ");
+  switch (mpu.getFilterBandwidth()) {
+  case MPU6050_BAND_260_HZ:
+    Serial.println("260 Hz");
+    break;
+  case MPU6050_BAND_184_HZ:
+    Serial.println("184 Hz");
+    break;
+  case MPU6050_BAND_94_HZ:
+    Serial.println("94 Hz");
+    break;
+  case MPU6050_BAND_44_HZ:
+    Serial.println("44 Hz");
+    break;
+  case MPU6050_BAND_21_HZ:
+    Serial.println("21 Hz");
+    break;
+  case MPU6050_BAND_10_HZ:
+    Serial.println("10 Hz");
+    break;
+  case MPU6050_BAND_5_HZ:
+    Serial.println("5 Hz");
+    break;
+  }
+
+  }
 
    void initLoadCell(appManager* appMgr) {        
         scale.begin(SDA, SCL);
@@ -64,6 +164,7 @@ void appManager_ctor(appManager * const me) {
   Wire.begin(SDA, SCL);
 
   
+
   initBoard();
   Serial.println("Board Initialized..");
 
@@ -79,12 +180,26 @@ void appManager_ctor(appManager * const me) {
    initLoadCell(me);
    Serial.println("Load Cell Initialized..");
 
-  me->conManager = connectionManager_ctor(&conManagerr);
+   initGyroSensor(me);
+  
+   Serial.println("Gyro Sensor Initialized..");
+
+
+   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
+  
+  
+
+  // clear Screen after Welcome
+
+       delay(1000);
+       screen.clearDisplay();
+       screen.display();
 
 }
 
 /* Function Implementation */
+
 
 
  void displayWelcomeScreen() {
@@ -98,6 +213,10 @@ void appManager_ctor(appManager * const me) {
         screen.print(F("V E O R A"));
         screen.println();
         screen.display(); // actually display all of the above
+        delay(1000);
+
+        // screen.clearDisplay();
+        // screen.display();
         
  }
 
@@ -134,14 +253,16 @@ void readyScreen() {
         while (digitalRead(reset_pin) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
-          if(count_press>5000) {            
+          if(count_press>4000) {            
             break;
           }   
         }
 
-            digitalWrite(reset_pin,HIGH); // unpress button        
+            digitalWrite(reset_pin,HIGH); // unpress button  
             Serial.print("Button pressed for: ");
-            Serial.println(count_press);
+            Serial.println(count_press);            
+
+
 
    // Action as per time period of pressing button
 
@@ -166,28 +287,30 @@ void readyScreen() {
     //   }
      
         
-     if((count_press >10) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
-
+     if((count_press >10) && (count_press<4000)) {
+          // reset settings - wipe stored credentials for testing, these are stored by the esp library
+            
             Serial.println("Wifi Resetting.."); 
 
 //            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
-
-            screen.setCursor(85,65); 
-            // screen.setTextSize(1);
+            screen.setCursor(100,48); 
+            screen.setTextSize(2);
             // screen.setFont(&FreeMonoBold9pt7b);
-            // screen.setTextColor(SH110X_BLACK);
-            screen.print("*");
+            screen.setTextColor(SH110X_WHITE);
+            screen.print(".");
             screen.println();
             screen.display(); // actually display all of the above
             delay(20);
-
+            
             screen_state = false;
             digitalWrite(WIFI_LED,HIGH);
             digitalWrite(HEARTBEAT_LED,LOW);
+            
             resetWifi(appMgr->conManager);      
-            connectWiFi(appMgr->conManager);
+            connectWiFi(appMgr->conManager);            
 
      }
+   // if((count_press >10) && (count_press<4000)) {} // For another operation
 
     //  if((count_press >3400) && (count_press<6000)) {
 
@@ -222,8 +345,8 @@ void initScreen() {
     while (true);  // Stop execution if display fails to initialize
   }
 
-  displayWelcomeScreen();
-
+  displayWelcomeScreen(); 
+  
 }
 
 void printOnScreen(int x, int y, int textSize, int textColor, String text) {
@@ -284,11 +407,25 @@ void loop_mgr(appManager* appMgr) {
 void getSensorData_print_update(appManager* appMgr) {
    
   // get data from sensors
+
+  /* Get new sensor events with the readings */
+  for(counter = 0;counter<45;counter++)
+  {  
+    mpu.getEvent(&a, &g, &temp);
+    delay(5);  
+  }
+  delay(10);
+  float x_now,y_now;
+
+ // Display data on screen if change in x and y
+ x_now = a.acceleration.x/.10;
+ y_now = a.acceleration.y/.10;
+
    
   float hum = dht.readHumidity();
   delay(10);
 
-  float temp = dht.readTemperature();
+  float temperature = dht.readTemperature();
   delay(10);
   
   float load; 
@@ -304,23 +441,10 @@ void getSensorData_print_update(appManager* appMgr) {
     {
       load = 0.00;
     }    
-  //  delay(500);
-  //  Serial.println(load);
-  // }
-  
+
   scale.power_down();
   
-
-
-  // if(scale.is_ready()) {  
-  //   load = scale.get_units();
-  //   Serial.println(load);
-  // }
-  
-  // char hum_Buff[6];
-  // char temp_Buff[6];
-  // char load_Buff[15];
-  
+ 
   char *hum_Buff = (char*)malloc(100 * sizeof(char));
   char *temp_Buff = (char*)malloc(100 * sizeof(char));
   char *load_Buff = (char*)malloc(100 * sizeof(char));
@@ -333,29 +457,68 @@ void getSensorData_print_update(appManager* appMgr) {
   Serial.print(F("H - "));
   Serial.print(hum);
   Serial.print(F("%  T - "));
-  Serial.print(temp);
+  Serial.print(temperature);
   Serial.print(F("C  W - "));  
   Serial.print(load);
   Serial.println(F(" g"));
+
+  /* Print out the values */
+  Serial.print(F(" Initial x: "));
+  Serial.print(x_start);
+  Serial.print(F(", y: "));
+  Serial.print(y_start);
+  
+  Serial.print(F(" \t"));
+
+  Serial.print(F(" X: "));
+  Serial.print(x_now);
+  Serial.print(F(", Y: "));
+  Serial.println(y_now);
+   
 
   // print on Screen
     
   // Convert the float to a string, storing it in buf
  
     snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
-    snprintf(temp_Buff, sizeof(temp_Buff), "%.4f", temp);   
+    snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temperature);   
     snprintf(load_Buff, sizeof(load_Buff), "%.4f", load);   
      
     memset(&hum, 0, sizeof(hum));
-    memset(&temp, 0, sizeof(temp));
+    memset(&temp, 0, sizeof(temperature));
     memset(&load, 0, sizeof(load));
 
-    hum = NULL;
-    temp = NULL;
-    load = NULL;
+    // hum = NULL;
+    // temperature = NULL;
+    // load = NULL;
 
     // screen.clearDisplay();
     // screen.display();  
+
+
+if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
+   displayOn = true; 
+   displayOn_start = millis();
+   
+   x_start = x_now;
+   y_start = y_now;
+}
+
+if(displayOn) {  
+ 
+   if((WiFi.status() != WL_CONNECTED)) {   // Print Not connected symbol "." 
+   
+            screen.setCursor(100,48); 
+            screen.setTextSize(2);
+            // screen.setFont(&FreeMonoBold9pt7b);
+            screen.setTextColor(SH110X_WHITE);
+            screen.print(".");
+            screen.println();
+            screen.display(); // actually display all of the above
+            delay(10);
+
+   }  
+
     if(!screen_state) {         
        readyScreen();
        screen_state = true;
@@ -418,8 +581,21 @@ void getSensorData_print_update(appManager* appMgr) {
 
    //printOnScreen(0,45,1,1,"--------------------");
 
-     screen.display(); // actually display all of the above   
+     screen.display(); // actually display all of the above 
 
+    //  delay(DISPLAY_TIME);  
+    if((millis()-displayOn_start) > DISPLAY_TIME) {
+     
+     displayOn_start = 0; 
+     
+     displayOn = false;     // set Display off     
+
+     screen.clearDisplay();  // Clear Display
+     screen.display();
+     screen_state = false;
+    }
+
+  }
   // Update sensor data in cloud
  
   StaticJsonDocument<100> doc;
@@ -448,8 +624,8 @@ void getSensorData_print_update(appManager* appMgr) {
   hum_Buff = NULL;
   temp_Buff = NULL; 
   load_Buff = NULL;
+ 
 }
-
 
 void initRGB(){
   pinMode(HEARTBEAT_LED, OUTPUT);

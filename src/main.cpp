@@ -37,6 +37,7 @@ void setup()
     // Initiating Manager
   //Serial.println("Initializing App Manager..");
   appManager_ctor(&managr);
+  
   Serial.println("All Systems Initialized..");
 
    loop_mgr(&managr);
@@ -46,8 +47,8 @@ void loop()
 {
     
   getSensorData_print_update(&managr);
+  
   checkButtonPressed(&managr);
   //client.loop();
- 
-  delay(500);
+  
 }

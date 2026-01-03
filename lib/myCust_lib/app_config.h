@@ -21,6 +21,7 @@
     #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"           //change this
     #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"           //change this
 
-    #define PUBLILISH_INTERVAL  10000 
-    #define TIMEOUT_INTERVAL    5000
+    #define PUBLILISH_INTERVAL  600 
+    #define TIMEOUT_INTERVAL    120       // seconds
+    #define DISPLAY_TIME        10000      // milliseconds
 #endif
