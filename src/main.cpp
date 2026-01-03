@@ -37,6 +37,7 @@ void setup()
     // Initiating Manager
   //Serial.println("Initializing App Manager..");
   appManager_ctor(&managr);
+  
   Serial.println("All Systems Initialized..");
 
    loop_mgr(&managr);

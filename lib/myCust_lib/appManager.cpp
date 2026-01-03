@@ -253,14 +253,16 @@ void readyScreen() {
         while (digitalRead(reset_pin) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
-          if(count_press>5000) {            
+          if(count_press>4000) {            
             break;
           }   
         }
 
-            digitalWrite(reset_pin,HIGH); // unpress button        
+            digitalWrite(reset_pin,HIGH); // unpress button  
             Serial.print("Button pressed for: ");
-            Serial.println(count_press);
+            Serial.println(count_press);            
+
+
 
    // Action as per time period of pressing button
 
@@ -285,8 +287,9 @@ void readyScreen() {
     //   }
      
         
-     if((count_press >10) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
-
+     if((count_press >10) && (count_press<4000)) {
+          // reset settings - wipe stored credentials for testing, these are stored by the esp library
+            
             Serial.println("Wifi Resetting.."); 
 
 //            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
@@ -302,10 +305,12 @@ void readyScreen() {
             screen_state = false;
             digitalWrite(WIFI_LED,HIGH);
             digitalWrite(HEARTBEAT_LED,LOW);
+            
             resetWifi(appMgr->conManager);      
-            connectWiFi(appMgr->conManager);
+            connectWiFi(appMgr->conManager);            
 
      }
+   // if((count_press >10) && (count_press<4000)) {} // For another operation
 
     //  if((count_press >3400) && (count_press<6000)) {
 
