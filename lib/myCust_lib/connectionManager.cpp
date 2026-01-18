@@ -23,7 +23,7 @@
 
 Preferences preferences;
 
-WiFiClientSecure net = WiFiClientSecure();
+WiFiClientSecure  net;
 
 PubSubClient pub_sub_client(net);
 
@@ -31,6 +31,7 @@ WiFiManager wm; // WiFi Manager
 
 String sub_topic = AWS_IOT_SUBSCRIBE_TOPIC;
 String pub_topic = AWS_IOT_PUBLISH_TOPIC;
+
 char server[50] = AWS_ENDPOINT;
 // char mqttUser[20] = MQTT_USER;
 // char mqttPassword[20] = MQTT_PASSWORD;
@@ -44,7 +45,8 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
   //  initConfig(me);
    //resetWifi(me);       // To Reset Wifi
    connectWiFi(me);
-   connectAWS(me);
+  // connectAWS(me);
+   connectEQMX(me);
 
    return me;
 }
@@ -67,7 +69,8 @@ void publishOnMqtt(char* data, connectionManager* con) {
    strcpy(jsonBuffer_to_cloud, data);
       
   // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-   pub_sub_client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer_to_cloud);
+   // pub_sub_client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer_to_cloud);
+    pub_sub_client.publish(MQTT_PUBLISH_TOPIC, jsonBuffer_to_cloud);
 
 }
 
@@ -78,9 +81,9 @@ void connectAWS(connectionManager * con) {
   // Serial.println("Connecting to Wi-Fi");
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA);
-  net.setCertificate(AWS_CERT_CRT);
-  net.setPrivateKey(AWS_CERT_PRIVATE);
+  // net.setCACert(AWS_CERT_CA);
+  // net.setCertificate(AWS_CERT_CRT);
+  // net.setPrivateKey(AWS_CERT_PRIVATE);
   
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
@@ -109,6 +112,33 @@ void connectAWS(connectionManager * con) {
   Serial.println("AWS IoT Connected!");
 }
 
+void connectEQMX(connectionManager * con) {
+  // Connect to the MQTT broker on the AWS endpoint we defined earlier
+  
+  net.setInsecure(); // Disable certificate verification
+
+  pub_sub_client.setServer(EQMX_ENDPOINT, MQTT_PORT);
+
+  // Create a message handler
+  pub_sub_client.setCallback(messageHandler);
+  
+  String client_id = "esp32-client-" + String(WiFi.macAddress());
+
+  Serial.println("Connecting to EMQX");
+
+    if (pub_sub_client.connect(CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {
+      Serial.print("EMQX Connected - "); 
+      Serial.println(CLIENT_ID);
+    } else {
+      delay(2000);
+    }
+
+
+  // Subscribe to a topic
+  pub_sub_client.subscribe(MQTT_SUBSCRIBE_TOPIC);
+  pub_sub_client.publish(MQTT_PUBLISH_TOPIC, "Hello from myContainer");
+
+}
 
 void loop_con(connectionManager* con) {
   pub_sub_client.loop();

@@ -21,6 +21,14 @@
     #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"           //change this
     #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"           //change this
 
+    #define EQMX_ENDPOINT          "p6f666e4.ala.asia-southeast1.emqxsl.com"   // EMQX MQTT Broker URL
+    #define MQTT_USERNAME          "sinny777"
+    #define MQTT_PASSWORD          "1SatnamW"
+    #define MQTT_PORT              8883
+    #define MQTT_PUBLISH_TOPIC   "container/sensors/data"
+    #define MQTT_SUBSCRIBE_TOPIC "container/sensors/cmd"
+    #define CLIENT_ID             "myContainer_1"          // Change this
+
     #define PUBLILISH_INTERVAL  600 
     #define TIMEOUT_INTERVAL    120       // seconds
     #define DISPLAY_TIME        10000      // milliseconds

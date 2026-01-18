@@ -33,7 +33,8 @@ typedef struct {
    bool connectWiFi(connectionManager*);
    void reconnectWiFi(connectionManager*);
    void resetWifi(connectionManager*);
-   void connectAWS(connectionManager*);   
+   void connectAWS(connectionManager*);
+   void connectEQMX(connectionManager *);   
    void messageHandler(char*, byte*, unsigned int);
    void publishOnMqtt(char*, connectionManager*);  
    void loop_con(connectionManager*);
