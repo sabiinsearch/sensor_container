@@ -156,15 +156,15 @@ void uploadToS3(char* data, connectionManager* con) {
 
     SigV4Parameters_t sigParams = {
         .pCredentials = &credentials,
+        .pDateIso8601 = amzDate,
         .pRegion = "ap-south-1",
         .regionLen = 9,
         .pService = "s3",
-        .serviceLen = 2, 
-        .pDateIso8601 = amzDate,
-        .pHttpParameters = &httpParams,
+        .serviceLen = 2,         
+        .pHttpParameters = &httpParams
     //    .pCryptoInterface = &myCryptoInterface
-        },
     };
+
 
     // 1. Prepare JSON Payload
     String jsonPayload = data;
@@ -172,12 +172,25 @@ void uploadToS3(char* data, connectionManager* con) {
      
 
     // 3. Generate Authorization Header
-    char authHeader[1024]; 
-    size_t authHeaderLen = sizeof(authHeader);
-    SigV4Status_t status = SigV4_GenerateHTTPAuthorization(&sigParams, authHeader, &authHeaderLen);
+    // 1. Existing variables
+     char authHeader[1024]; 
+     size_t authHeaderLen = sizeof(authHeader);
+
+   // 2. NEW: Variables to receive signature metadata
+    char * pSignatureLocation = NULL;
+    size_t signatureValueLen = 0;
+
+   // 3. Corrected function call with 5 parameters
+    SigV4Status_t status = SigV4_GenerateHTTPAuthorization(
+       &sigParams, 
+       authHeader, 
+       &authHeaderLen,
+       &pSignatureLocation, // NEW: Pointer to signature location (char **)
+       &signatureValueLen   // NEW: Pointer to signature length (size_t *) 
+    );
 
     if (status == SigV4Success) {        
-        HttpClient http;
+        HttpClient(net);
         String url = "https://" + String(S3_BUCKET_NAME) + ".s3." + String(AWS_SREGION) + ".amazonaws.com";       
         http.begin(url);
         http.addHeader("Authorization", authHeader);
