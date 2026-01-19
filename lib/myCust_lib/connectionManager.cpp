@@ -161,7 +161,7 @@ void uploadToS3(char* data, connectionManager* con) {
         .pService = "s3",
         .serviceLen = 2, 
         .pDateIso8601 = amzDate,
-        .httpParameters = &httpParams
+        .phttpParameters = &httpParams
     //    .pCryptoInterface = &myCryptoInterface
         },
     };
