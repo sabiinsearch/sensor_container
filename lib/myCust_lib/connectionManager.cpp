@@ -191,16 +191,17 @@ void uploadToS3(char* data, connectionManager* con) {
 
     if (status == SigV4Success) {        
         String url = "https://" + String(S3_BUCKET_NAME) + ".s3." + String(AWS_SREGION) + ".amazonaws.com";
-        HttpClient(net,url.c_str(),80);               
-        // http.begin(net,url);
-        HttpClient.addHeader("Authorization", authHeader);
-        HttpClient.addHeader("x-amz-date", amzDate);
-        HttpClient.addHeader("x-amz-content-sha256", payloadHash); // Mandatory for S3
-        HttpClient.addHeader("Content-Type", "application/json");
+        HttpClient http(net);               
+        http.beginRequest();
+        http.get(url.c_str());
+        http.addHeader("Authorization", authHeader);
+        http.addHeader("x-amz-date", amzDate);
+        http.addHeader("x-amz-content-sha256", payloadHash); // Mandatory for S3
+        http.addHeader("Content-Type", "application/json");
 
-        int httpCode = HttpClient.PUT(jsonPayload);
+        int httpCode = http.PUT(jsonPayload);
         Serial.printf("S3 PUT Result: %d\n", httpCode);
-        HttpClient.end();
+        http.end();
     }
 
 }  
