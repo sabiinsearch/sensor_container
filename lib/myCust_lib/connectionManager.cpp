@@ -191,7 +191,7 @@ void uploadToS3(char* data, connectionManager* con) {
 
     if (status == SigV4Success) {        
         String url = "https://" + String(S3_BUCKET_NAME) + ".s3." + String(AWS_SREGION) + ".amazonaws.com";
-        HttpClient(net,url,"80");               
+        HttpClient(net,url,80);               
         // http.begin(net,url);
         HttpClient.addHeader("Authorization", authHeader);
         HttpClient.addHeader("x-amz-date", amzDate);
