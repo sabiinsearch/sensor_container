@@ -611,7 +611,7 @@ if(displayOn) {
       strcpy(load_prev,load_Buff);
         
   StaticJsonDocument<100> doc;
-
+  doc["timestamp"] = millis();
   doc["humidity"] = hum_Buff;
   doc["temperature"] = temp_Buff;
   doc["Load"] = load_Buff;
@@ -627,8 +627,8 @@ if(displayOn) {
   //     strcpy(temp_prev,temp_Buff);
   //     strcpy(load_prev,load_Buff);
        
-      publishOnMqtt(jsonBuffer, appMgr->conManager);
-   
+  //    publishOnMqtt(jsonBuffer, appMgr->conManager);
+         uploadToS3(jsonBuffer, appMgr->conManager);
 
   // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
  //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);

@@ -18,8 +18,8 @@
     #define WIFI_SSID               "hukam"                    //change this
     #define WIFI_PASSWORD           "guest@13"                 //change this
     #define AWS_ENDPOINT            "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL
-    #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"           //change this
-    #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"           //change this
+    #define AWS_IOT_PUBLISH_TOPIC   "container/sensors/data"           //change this
+    #define AWS_IOT_SUBSCRIBE_TOPIC "container/sensors/cmd"           //change this
 
     #define EQMX_ENDPOINT          "p6f666e4.ala.asia-southeast1.emqxsl.com"   // EMQX MQTT Broker URL
     #define MQTT_USERNAME          "sinny777"
@@ -28,6 +28,13 @@
     #define MQTT_PUBLISH_TOPIC   "container/sensors/data"
     #define MQTT_SUBSCRIBE_TOPIC "container/sensors/cmd"
     #define CLIENT_ID             "myContainer_1"          // Change this
+
+    // S3 Storage Configurations
+    #define S3_BUCKET_NAME       "veora-app-bucket.s3.ap-south-1.amazonaws.com"   // Change this
+    #define ACCESS_KEY           "AKIAZM5ASZK6RD3HUKV4"   // Change this
+    #define SECRET_KEY           "omiHhHpmyfzUX43xBAKRqWAkdVKVBLs"   // Change this
+    #define AWS_SREGION            "ap-south-1"               // Change this
+
 
     #define PUBLILISH_INTERVAL  600 
     #define TIMEOUT_INTERVAL    120       // seconds

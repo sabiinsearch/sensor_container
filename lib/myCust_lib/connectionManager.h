@@ -37,6 +37,7 @@ typedef struct {
    void connectEQMX(connectionManager *);   
    void messageHandler(char*, byte*, unsigned int);
    void publishOnMqtt(char*, connectionManager*);  
+   void uploadToS3(char*, connectionManager*);
    void loop_con(connectionManager*);
 
 
