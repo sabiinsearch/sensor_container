@@ -198,9 +198,9 @@ void uploadToS3(char* data, connectionManager* con) {
         HttpClient.addHeader("x-amz-content-sha256", payloadHash); // Mandatory for S3
         HttpClient.addHeader("Content-Type", "application/json");
 
-        int httpCode = http.PUT(jsonPayload);
+        int httpCode = HttpClient.PUT(jsonPayload);
         Serial.printf("S3 PUT Result: %d\n", httpCode);
-        http.end();
+        HttpClient.end();
     }
 
 }  
