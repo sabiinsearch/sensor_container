@@ -157,7 +157,7 @@ void uploadToS3(char* data, connectionManager* con) {
     SigV4Parameters_t sigParams = {
         .pCredentials = &credentials,
         .pDateIso8601 = amzDate,
-        .pRegion = "ap-south-1",
+        .pRegion = REGION,
         .regionLen = 9,
         .pService = "s3",
         .serviceLen = 2,         
@@ -190,7 +190,7 @@ void uploadToS3(char* data, connectionManager* con) {
     );
 
     if (status == SigV4Success) {        
-        String url = "https://" + String(S3_BUCKET_NAME) + ".s3." + String(AWS_SREGION) + ".amazonaws.com";
+        String url = "https://" + String(S3_BUCKET_NAME) + ".s3." + String(REGION) + ".amazonaws.com";
         HttpClient http(net);               
         http.beginRequest();
         http.get(url.c_str());

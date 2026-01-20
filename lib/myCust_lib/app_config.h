@@ -33,7 +33,7 @@
     #define S3_BUCKET_NAME       "veora-app-bucket.s3.ap-south-1.amazonaws.com"   // Change this
     #define ACCESS_KEY           "AKIAZM5ASZK6RD3HUKV4"   // Change this
     #define SECRET_KEY           "omiHhHpmyfzUX43xBAKRqWAkdVKVBLs"   // Change this
-    #define AWS_SREGION            "ap-south-1"               // Change this
+    #define REGION               "ap-south-1"               // Change this
 
 
     #define PUBLILISH_INTERVAL  600 
