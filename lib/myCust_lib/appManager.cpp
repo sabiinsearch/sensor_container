@@ -621,7 +621,7 @@ if(displayOn) {
   }
   // Update sensor data in cloud
  
-  if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
+  //if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
 
     // Serial.println("Change");
 
@@ -654,7 +654,7 @@ if(displayOn) {
  //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
         
   // Serial.println(jsonBuffer);
-  }
+ // }
   // Free the allocated memory
   memset(hum_Buff, 0, 5);
   memset(temp_Buff, 0, 5);
@@ -663,11 +663,11 @@ if(displayOn) {
   memset(&x_now, 0, sizeof(x_now));
   memset(&y_now, 0, sizeof(y_now));
 
-       free(x_now);
-       free(y_now);
+  free(x_now);
+  free(y_now);
 
-       x_now = NULL;
-       y_now = NULL;  
+  x_now = NULL;
+  y_now = NULL;  
 
   free(hum_Buff);
   free(temp_Buff);
