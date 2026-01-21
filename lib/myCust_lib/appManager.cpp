@@ -53,7 +53,9 @@ bool displayOn = false;
 
 long displayOn_start;
 //float x_now,y_now,x_pre,y_prev;
-float x_start,y_start;
+//float x_start,y_start;
+  float *x_start = (float*) malloc(sizeof(float));    
+  float *y_start = (float*) malloc(sizeof(float)); 
 
 int counter;
 
@@ -66,9 +68,9 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
 Preferences pref;
 
-char *hum_prev = (char*)malloc(100 * sizeof(char));
-char *temp_prev = (char*)malloc(100 * sizeof(char));
-char *load_prev = (char*)malloc(100 * sizeof(char));
+char *hum_prev = (char*)malloc(5 * sizeof(char));
+char *temp_prev = (char*)malloc(5 * sizeof(char));
+char *load_prev = (char*)malloc(5 * sizeof(char));
    
   void initGyroSensor(appManager* appMgr) {
 
@@ -87,8 +89,8 @@ char *load_prev = (char*)malloc(100 * sizeof(char));
   }
        
   // Storing x and y at start     
-  x_start = a.acceleration.x/0.10;
-  y_start = a.acceleration.y/0.10;
+  *x_start = (a.acceleration.x/0.10);
+  *y_start = (a.acceleration.y/0.10);
   
 
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
@@ -419,20 +421,25 @@ void getSensorData_print_update(appManager* appMgr) {
     delay(5);  
   }
   delay(10);
-  float x_now,y_now;
+  //float x_now,y_now;
+
+  float *x_now = (float*) malloc(sizeof(float));    
+  float *y_now = (float*) malloc(sizeof(float));    
 
  // Display data on screen if change in x and y
- x_now = a.acceleration.x/.10;
- y_now = a.acceleration.y/.10;
+  *x_now = a.acceleration.x/.10;
+  *y_now = a.acceleration.y/.10;
 
-   
-  float hum = dht.readHumidity();
-  delay(10);
+  float *hum = (float*) malloc(sizeof(float));     
+  *hum = dht.readHumidity();
 
-  float temperature = dht.readTemperature();
   delay(10);
   
-  float load; 
+  float *temperature = (float*) malloc(sizeof(float)); 
+  *temperature = dht.readTemperature();
+  delay(10);
+    
+  float *load = (float*) malloc(sizeof(float)); 
   scale.power_up();
   //delay(500);
   initLoadCell(appMgr);
@@ -440,67 +447,79 @@ void getSensorData_print_update(appManager* appMgr) {
 
   }
   // if(scale.is_ready()) {  
-    load = scale.get_units(10);
-    if (load < 0)
+    *load = scale.get_units(10);
+    if (*load < 0)
     {
-      load = 0.00;
+      *load = 0.00;
     }    
 
   scale.power_down();
   
  
-  char *hum_Buff = (char*)malloc(100 * sizeof(char));
-  char *temp_Buff = (char*)malloc(100 * sizeof(char));
-  char *load_Buff = (char*)malloc(100 * sizeof(char));
+  char *hum_Buff = (char*)malloc(5 * sizeof(char));
+  char *temp_Buff = (char*)malloc(5 * sizeof(char));
+  char *load_Buff = (char*)malloc(5 * sizeof(char));
+
 
   int ndigits=5;  
 
+      
+  // Convert the float to a string, storing it in buf
+ 
+    snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", *hum);
+    snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", *temperature);   
+    snprintf(load_Buff, sizeof(load_Buff), "%.4f", *load);
 
   // print on Serial Monitor
+   
 
   Serial.print(F("H - "));
-  Serial.print(hum);
-  Serial.print(F("%  T - "));
-  Serial.print(temperature);
-  Serial.print(F("C  W - "));  
-  Serial.print(load);
+  Serial.print(hum_Buff);
+  
+  
+  Serial.print(F(" %  T - "));
+  Serial.print(temp_Buff);
+
+  
+  Serial.print(F("C  W - "));   
+  Serial.print(load_Buff);
   Serial.println(F(" g"));
 
   /* Print out the values */
-  Serial.print(F(" Initial x: "));
-  Serial.print(x_start);
-  Serial.print(F(", y: "));
-  Serial.print(y_start);
-  
-  Serial.print(F(" \t"));
+  // dtostrf(*x_start, 7, 4, mem_buff);
+  // Serial.print(F(" Initial x: "));
+  // Serial.print(mem_buff);
 
-  Serial.print(F(" X: "));
-  Serial.print(x_now);
-  Serial.print(F(", Y: "));
-  Serial.println(y_now);
+  // dtostrf(*y_start, 7, 4, mem_buff);
+  // Serial.print(F(", y: %f"));
+  // Serial.print(mem_buff);
+  
+  // Serial.print(F(" \t"));
+
+  // dtostrf(*x_now, 7, 4, mem_buff);
+  // Serial.print(F(" X: %f"));
+  // Serial.print(mem_buff);
+  // dtostrf(*y_now, 7, 4, mem_buff);
+  // Serial.print(F(", Y: %f"));
+  // Serial.println(mem_buff);
    
 
   // print on Screen
-    
-  // Convert the float to a string, storing it in buf
- 
-    snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
-    snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temperature);   
-    snprintf(load_Buff, sizeof(load_Buff), "%.4f", load);   
+   
      
     memset(&hum, 0, sizeof(hum));
-    memset(&temp, 0, sizeof(temperature));
+    memset(&temperature, 0, sizeof(temperature));
     memset(&load, 0, sizeof(load));
+   
+       free(hum);
+       free(temperature);
+       free(load);
 
-    // hum = NULL;
-    // temperature = NULL;
-    // load = NULL;
+       hum = NULL;
+       temperature = NULL; 
+       load = NULL;
 
-    // screen.clearDisplay();
-    // screen.display();  
-
-
-if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
+if(((*x_now) > *x_start + 8) || ((*x_now)<*x_start-8) || ((*y_now)>*y_start+8) || ((*y_now)<*y_start-8)) {
    displayOn = true; 
    displayOn_start = millis();
    
@@ -604,7 +623,7 @@ if(displayOn) {
  
   if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
 
-    Serial.println("Change");
+    // Serial.println("Change");
 
       strcpy(hum_prev,hum_Buff);
       strcpy(temp_prev,temp_Buff);
@@ -612,11 +631,11 @@ if(displayOn) {
         
   StaticJsonDocument<100> doc;
 
-  doc["humidity"] = hum_Buff;
-  doc["temperature"] = temp_Buff;
-  doc["Load"] = load_Buff;
+  doc["Hum"] = hum_Buff;
+  doc["Temp"] = temp_Buff;
+  doc["Load"] = load_Buff; 
 
-  char jsonBuffer[128];
+  char jsonBuffer[60];
   serializeJson(doc, jsonBuffer); // print to client
 
   // if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
@@ -637,9 +656,18 @@ if(displayOn) {
   // Serial.println(jsonBuffer);
   }
   // Free the allocated memory
-  memset(hum_Buff, 0, 100);
-  memset(temp_Buff, 0, 100);
-  memset(load_Buff, 0, 100);  
+  memset(hum_Buff, 0, 5);
+  memset(temp_Buff, 0, 5);
+  memset(load_Buff, 0, 5); 
+  
+  memset(&x_now, 0, sizeof(x_now));
+  memset(&y_now, 0, sizeof(y_now));
+
+       free(x_now);
+       free(y_now);
+
+       x_now = NULL;
+       y_now = NULL;  
 
   free(hum_Buff);
   free(temp_Buff);
