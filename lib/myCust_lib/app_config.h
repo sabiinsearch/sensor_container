@@ -18,8 +18,8 @@
     #define WIFI_SSID               "hukam"                    //change this
     #define WIFI_PASSWORD           "guest@13"                 //change this
     #define AWS_ENDPOINT            "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL
-    #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"           //change this
-    #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"           //change this
+    #define AWS_IOT_PUBLISH_TOPIC   "container/sensors/data"           //change this
+    #define AWS_IOT_SUBSCRIBE_TOPIC "container/sensors/cmd"           //change this
 
     #define PUBLILISH_INTERVAL  600 
     #define TIMEOUT_INTERVAL    120       // seconds
