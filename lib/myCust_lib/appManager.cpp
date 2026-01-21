@@ -65,6 +65,10 @@ int counter;
 DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
 Preferences pref;
+
+char *hum_prev = (char*)malloc(100 * sizeof(char));
+char *temp_prev = (char*)malloc(100 * sizeof(char));
+char *load_prev = (char*)malloc(100 * sizeof(char));
    
   void initGyroSensor(appManager* appMgr) {
 
@@ -598,20 +602,40 @@ if(displayOn) {
   }
   // Update sensor data in cloud
  
+  if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
+
+    Serial.println("Change");
+
+      strcpy(hum_prev,hum_Buff);
+      strcpy(temp_prev,temp_Buff);
+      strcpy(load_prev,load_Buff);
+        
   StaticJsonDocument<100> doc;
 
   doc["humidity"] = hum_Buff;
   doc["temperature"] = temp_Buff;
   doc["Load"] = load_Buff;
 
-  char jsonBuffer[150];
+  char jsonBuffer[128];
   serializeJson(doc, jsonBuffer); // print to client
-  publishOnMqtt(jsonBuffer, appMgr->conManager);
+
+  // if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
+
+  //   Serial.println("Change");
+
+  //     strcpy(hum_prev,hum_Buff);
+  //     strcpy(temp_prev,temp_Buff);
+  //     strcpy(load_prev,load_Buff);
+       
+      publishOnMqtt(jsonBuffer, appMgr->conManager);
+      delay(100);
+   
+
   // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
  //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
         
   // Serial.println(jsonBuffer);
-
+  }
   // Free the allocated memory
   memset(hum_Buff, 0, 100);
   memset(temp_Buff, 0, 100);

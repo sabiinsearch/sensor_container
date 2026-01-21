@@ -44,6 +44,7 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
   //  initConfig(me);
    //resetWifi(me);       // To Reset Wifi
    connectWiFi(me);
+   
    connectAWS(me);
 
    return me;
