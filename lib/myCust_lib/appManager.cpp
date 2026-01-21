@@ -601,7 +601,9 @@ if(displayOn) {
     }
 
   }
+
   // Update sensor data in cloud
+  
   if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
 
     Serial.println("Change");
