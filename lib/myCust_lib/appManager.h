@@ -13,6 +13,10 @@ typedef struct {
 
      connectionManager* conManager;     
      
+     float prev_hum;
+     float prev_temp;
+     float prev_load;
+     
 } appManager;
 
 void appManager_ctor(appManager * const me); // constructor

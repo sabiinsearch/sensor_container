@@ -55,6 +55,8 @@ long displayOn_start;
 //float x_now,y_now,x_pre,y_prev;
 float x_start,y_start;
 
+bool updateNeeded = false;
+
 int counter;
 
 // Create BMP280 object
@@ -195,6 +197,10 @@ void appManager_ctor(appManager * const me) {
        delay(1000);
        screen.clearDisplay();
        screen.display();
+
+       me->prev_hum = -0.0;
+       me->prev_temp = -0.0;
+       me->prev_load = -0.0;
 
 }
 
@@ -444,6 +450,36 @@ void getSensorData_print_update(appManager* appMgr) {
 
   scale.power_down();
   
+  // check if all sensor data is changed
+  // Serial.print(F("Hum: "));
+  // Serial.print(hum);
+  // Serial.print(F("-"));
+  // Serial.println(appMgr->prev_hum);
+
+  // Serial.print(F("Temp: "));
+  // Serial.print(temperature);
+  // Serial.print(F("-"));
+  // Serial.println(appMgr->prev_temp);
+
+  // Serial.print(F("Load: "));
+  // Serial.print(load);
+  // Serial.print(F("-"));
+  // Serial.println(appMgr->prev_load);
+
+  
+  if (((hum - (appMgr->prev_hum)) > 0.01) || (((appMgr->prev_hum) - hum) > 0.01)) {
+          appMgr->prev_hum = hum;
+          updateNeeded = true;
+      }
+  if (((temperature - (appMgr->prev_temp)) > 0.01) || (((appMgr->prev_temp) - temperature) > 0.01)) {
+    appMgr->prev_temp = temperature;
+    updateNeeded = true;
+  }
+  if (((load - (appMgr->prev_load)) > 0.01) || (((appMgr->prev_load) - load) > 0.01)) {
+    appMgr->prev_load = load;
+    updateNeeded = true;
+  }
+
  
   char *hum_Buff = (char*)malloc(100 * sizeof(char));
   char *temp_Buff = (char*)malloc(100 * sizeof(char));
@@ -454,29 +490,29 @@ void getSensorData_print_update(appManager* appMgr) {
 
   // print on Serial Monitor
 
-  Serial.print(F("H - "));
-  Serial.print(hum);
-  Serial.print(F("%  T - "));
-  Serial.print(temperature);
-  Serial.print(F("C  W - "));  
-  Serial.print(load);
-  Serial.println(F(" g"));
+  // Serial.print(F("H - "));
+  // Serial.print(hum);
+  // Serial.print(F("%  T - "));
+  // Serial.print(temperature);
+  // Serial.print(F("C  W - "));  
+  // Serial.print(load);
+  // Serial.println(F(" g"));
 
-  /* Print out the values */
-  Serial.print(F(" Initial x: "));
-  Serial.print(x_start);
-  Serial.print(F(", y: "));
-  Serial.print(y_start);
+  // /* Print out the values */
+  // Serial.print(F(" Initial x: "));
+  // Serial.print(x_start);
+  // Serial.print(F(", y: "));
+  // Serial.print(y_start);
   
-  Serial.print(F(" \t"));
+  // Serial.print(F(" \t"));
 
-  Serial.print(F(" X: "));
-  Serial.print(x_now);
-  Serial.print(F(", Y: "));
-  Serial.println(y_now);
+  // Serial.print(F(" X: "));
+  // Serial.print(x_now);
+  // Serial.print(F(", Y: "));
+  // Serial.println(y_now);
    
 
-  // print on Screen
+  // print on OLED
     
   // Convert the float to a string, storing it in buf
  
@@ -596,20 +632,30 @@ if(displayOn) {
     }
 
   }
-  // Update sensor data in cloud
- 
-  StaticJsonDocument<100> doc;
 
-  doc["humidity"] = hum_Buff;
-  doc["temperature"] = temp_Buff;
-  doc["Load"] = load_Buff;
+  // Update sensor data in cloud if there is any change in sensor data
 
-  char jsonBuffer[150];
-  serializeJson(doc, jsonBuffer); // print to client
-  publishOnMqtt(jsonBuffer, appMgr->conManager);
-  // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
- //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-        
+  if (updateNeeded) {
+
+      StaticJsonDocument<100> doc;  
+
+      doc["humidity"] = hum_Buff;
+      doc["temperature"] = temp_Buff;
+      doc["Load"] = load_Buff;
+
+      char jsonBuffer[150];
+      serializeJson(doc, jsonBuffer); // print to client
+      publishOnMqtt(jsonBuffer, appMgr->conManager);
+      // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+      //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+      
+      
+      Serial.println("Published updated sensor data.");
+      updateNeeded = false;
+  } else {
+      //Serial.println("No significant change in sensor data. Skipping publish.");
+  }
+         
   // Serial.println(jsonBuffer);
 
   // Free the allocated memory
