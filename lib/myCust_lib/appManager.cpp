@@ -68,9 +68,9 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
 Preferences pref;
 
-char *hum_prev = (char*)malloc(5 * sizeof(char));
-char *temp_prev = (char*)malloc(5 * sizeof(char));
-char *load_prev = (char*)malloc(5 * sizeof(char));
+char *hum_prev = (char*)malloc(6 * sizeof(char));
+char *temp_prev = (char*)malloc(6 * sizeof(char));
+char *load_prev = (char*)malloc(6 * sizeof(char));
    
   void initGyroSensor(appManager* appMgr) {
 
@@ -624,18 +624,22 @@ if(displayOn) {
   //if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
 
     // Serial.println("Change");
+      memset(&hum_prev, 0, sizeof(hum_prev));
+      memset(&temp_prev, 0, sizeof(temp_prev));
+      memset(&load_prev, 0, sizeof(load_prev));
 
       strcpy(hum_prev,hum_Buff);
       strcpy(temp_prev,temp_Buff);
       strcpy(load_prev,load_Buff);
         
-  StaticJsonDocument<100> doc;
+  StaticJsonDocument<200> doc;
 
   doc["Hum"] = hum_Buff;
   doc["Temp"] = temp_Buff;
   doc["Load"] = load_Buff; 
+  doc["Time"] = millis();
 
-  char jsonBuffer[60];
+  char jsonBuffer[200];
   serializeJson(doc, jsonBuffer); // print to client
 
   // if((strcmp(hum_Buff, hum_prev) !=0) || (strcmp(temp_Buff, temp_prev) != 0) || (strcmp(load_Buff, load_prev) !=0)) {
