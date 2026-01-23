@@ -443,14 +443,14 @@ if(displayOn) {
     screen.fillRect(65, 5, 15, 30, SH110X_BLACK); // To clear a specific area
     screen.display();
     
-//    printOnScreen(65,5,1,1,hum_Buff);
+
         screen.setCursor(65,5); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(hum_Buff);
         screen.println();
 
-//    printOnScreen(95,5,1,1,F("% "));
+
         screen.setCursor(95,5); 
         screen.setTextSize(1);
         screen.setTextColor(1);
@@ -460,14 +460,14 @@ if(displayOn) {
     // screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
     // screen.display();
     
-//   printOnScreen(65,20,1,1,temp_Buff); 
+ 
         screen.setCursor(65,20); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(temp_Buff);
         screen.println();
     
-//  printOnScreen(95,20,1,1,F("C"));
+
         screen.setCursor(95,20); 
         screen.setTextSize(1);
         screen.setTextColor(1);
@@ -477,21 +477,21 @@ if(displayOn) {
      screen.fillRect(65, 35, 20, 10, SH110X_BLACK); // To clear a specific area
     // screen.display();
     
-  //  printOnScreen(65,35,1,1,load_Buff); 
+   
         screen.setCursor(65,35); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(load_Buff);
         screen.println();
 
-   //printOnScreen(95,35,1,1,F("grams "));
+   
         screen.setCursor(95,35); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(F("grams "));
         screen.println();
 
-   //printOnScreen(0,45,1,1,"--------------------");
+   
 
      screen.display(); // actually display all of the above 
 
@@ -542,15 +542,14 @@ if(displayOn) {
          updateNeeded = false;
       
       
-      // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-      //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+      
       
 
   } else {
-      //Serial.println("No significant change in sensor data. Skipping publish.");
+      
   }
          
-  // Serial.println(jsonBuffer);
+  
  
 }
 
