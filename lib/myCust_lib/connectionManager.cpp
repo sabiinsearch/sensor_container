@@ -115,10 +115,10 @@ void connectAWS(connectionManager * con) {
 
 void initNTP() {
     // Configure time using NTP
-    // 0 = GMT offset in seconds
+    // 19800 = GMT offset for IST (UTC +5:30)
     // 0 = Daylight offset in seconds
     // "pool.ntp.org" = NTP server
-    configTime(0, 0, "pool.ntp.org");
+    configTime(19800, 0, "pool.ntp.org");
     Serial.println("NTP Configured");
 }
 
