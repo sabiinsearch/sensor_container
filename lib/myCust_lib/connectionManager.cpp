@@ -87,6 +87,9 @@ void connectAWS(connectionManager * con) {
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
   pub_sub_client.setServer(AWS_ENDPOINT, 8883);
 
+  // Increase buffer size for larger payloads (JSON with time)
+  pub_sub_client.setBufferSize(512);
+
   // Create a message handler
   pub_sub_client.setCallback(messageHandler);
 
@@ -108,6 +111,15 @@ void connectAWS(connectionManager * con) {
   pub_sub_client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
   Serial.println("AWS IoT Connected!");
+}
+
+void initNTP() {
+    // Configure time using NTP
+    // 0 = GMT offset in seconds
+    // 0 = Daylight offset in seconds
+    // "pool.ntp.org" = NTP server
+    configTime(0, 0, "pool.ntp.org");
+    Serial.println("NTP Configured");
 }
 
 
@@ -158,7 +170,8 @@ bool connectWiFi(connectionManager * con) {
         con->Wifi_status = true;
         digitalWrite(HEARTBEAT_LED,HIGH);
         digitalWrite(WIFI_LED,LOW);   
-      //  Serial.println("Wifi connected...yeey :)");           
+      //  Serial.println("Wifi connected...yeey :)");     
+        initNTP();      
     }
     return res;
 }

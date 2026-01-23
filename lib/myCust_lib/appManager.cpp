@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ArduinoJson.h>
+#include <time.h>
 
 // libraries for Display
 #include <Wire.h>
@@ -588,13 +589,24 @@ if(displayOn) {
 
   if (updateNeeded) {
 
-      StaticJsonDocument<100> doc;  
+      // Increase size for time string
+      StaticJsonDocument<256> doc;  
+      
+      // Get current time
+      struct tm timeinfo;
+      if(getLocalTime(&timeinfo)){
+        char timeStringBuff[50];
+        strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", &timeinfo);
+        doc["time"] = timeStringBuff;
+      } else {
+        doc["time"] = "NTP_SYNC_FAILED";
+      }
 
       doc["humidity"] = hum_Buff;
       doc["temperature"] = temp_Buff;
       doc["Load"] = load_Buff;
 
-      char jsonBuffer[150];
+      char jsonBuffer[512]; // Increased buffer size
       serializeJson(doc, jsonBuffer); // print to client
 
       if(!(appMgr->conManager->client.connected())) {
@@ -608,7 +620,6 @@ if(displayOn) {
       
       // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
       //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-      
       
 
   } else {

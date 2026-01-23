@@ -29,6 +29,7 @@ typedef struct {
   
    void checkConnections_and_reconnect(void *);
    void initWiFi();
+   void initNTP();
    void mqtt_loop();
    bool connectMQTT(connectionManager*);
    bool connectWiFi(connectionManager*);
