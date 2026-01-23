@@ -481,7 +481,7 @@ void getSensorData_print_update(appManager* appMgr) {
  
     snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
     snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temperature);   
-    snprintf(load_Buff, sizeof(load_Buff), "%.2f", load);   
+    snprintf(load_Buff, sizeof(load_Buff), "%.1f", load);   
       
 
 if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
