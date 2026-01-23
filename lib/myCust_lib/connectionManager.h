@@ -12,6 +12,7 @@ typedef struct {
 
   WiFiManager wifi_manager;
 
+  PubSubClient client;
   bool radio_status;  
   bool ble_status;
   bool Wifi_status;

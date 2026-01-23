@@ -14,7 +14,7 @@
 
 
 #include <PubSubClient.h>   // for Mqtt
-#include "secrets.h"             //  for AWS Certificates and Keys
+#include "secrets.h"             //  for AWS Certificates and Keys"
 
 #include "app_config.h"     // for Custom Configration
 #include "receiverBoard.h"
@@ -43,6 +43,7 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
    
   //  initConfig(me);
    //resetWifi(me);       // To Reset Wifi
+   me->client = pub_sub_client;
    connectWiFi(me);
    connectAWS(me);
 

@@ -53,7 +53,8 @@ bool displayOn = false;
 
 long displayOn_start;
 //float x_now,y_now,x_pre,y_prev;
-float x_start,y_start;
+float x_start;
+float y_start;
 
 bool updateNeeded = false;
 
@@ -207,7 +208,6 @@ void appManager_ctor(appManager * const me) {
 /* Function Implementation */
 
 
-
  void displayWelcomeScreen() {
          
         screen.clearDisplay();
@@ -348,7 +348,7 @@ void initScreen() {
  //  Initialize the OLED display
   if (!screen.begin(ADD_OLED, 0x3C)) {
     Serial.println(F("SSD1306 initialization failed"));
-    while (true);  // Stop execution if display fails to initialize
+    while (true) { delay(100); }  // Stop execution if display fails to initialize, add delay for WDT
   }
 
   displayWelcomeScreen(); 
@@ -421,52 +421,39 @@ void getSensorData_print_update(appManager* appMgr) {
     delay(5);  
   }
   delay(10);
-  float x_now,y_now;
+  
+  // Use stack variables instead of malloc
+  float x_now = (float)(a.acceleration.x/.10);
+  float y_now = (float)(a.acceleration.y/.10);
 
- // Display data on screen if change in x and y
- x_now = a.acceleration.x/.10;
- y_now = a.acceleration.y/.10;
-
-   
   float hum = dht.readHumidity();
   delay(10);
 
   float temperature = dht.readTemperature();
   delay(10);
   
-  float load; 
+  float load = 0.00; 
   scale.power_up();
-  //delay(500);
   initLoadCell(appMgr);
+  
+  // Add timeout or delay to prevent infinite loop WDT reset
+  long loop_start = millis();
   while(!scale.is_ready()) {
-
+      delay(10); 
+      if (millis() - loop_start > 2000) break; // 2s timeout
   }
-  // if(scale.is_ready()) {  
-    load = scale.get_units(10);
+  
+  if(scale.is_ready()) {  
+    load = (float)(scale.get_units(10));
     if (load < 0)
     {
       load = 0.00;
     }    
+  }
 
   scale.power_down();
   
   // check if all sensor data is changed
-  // Serial.print(F("Hum: "));
-  // Serial.print(hum);
-  // Serial.print(F("-"));
-  // Serial.println(appMgr->prev_hum);
-
-  // Serial.print(F("Temp: "));
-  // Serial.print(temperature);
-  // Serial.print(F("-"));
-  // Serial.println(appMgr->prev_temp);
-
-  // Serial.print(F("Load: "));
-  // Serial.print(load);
-  // Serial.print(F("-"));
-  // Serial.println(appMgr->prev_load);
-
-  
   if (((hum - (appMgr->prev_hum)) > 0.01) || (((appMgr->prev_hum) - hum) > 0.01)) {
           appMgr->prev_hum = hum;
           updateNeeded = true;
@@ -481,36 +468,11 @@ void getSensorData_print_update(appManager* appMgr) {
   }
 
  
-  char *hum_Buff = (char*)malloc(100 * sizeof(char));
-  char *temp_Buff = (char*)malloc(100 * sizeof(char));
-  char *load_Buff = (char*)malloc(100 * sizeof(char));
+  char hum_Buff[20];
+  char temp_Buff[20];
+  char load_Buff[20];
 
   int ndigits=5;  
-
-
-  // print on Serial Monitor
-
-  // Serial.print(F("H - "));
-  // Serial.print(hum);
-  // Serial.print(F("%  T - "));
-  // Serial.print(temperature);
-  // Serial.print(F("C  W - "));  
-  // Serial.print(load);
-  // Serial.println(F(" g"));
-
-  // /* Print out the values */
-  // Serial.print(F(" Initial x: "));
-  // Serial.print(x_start);
-  // Serial.print(F(", y: "));
-  // Serial.print(y_start);
-  
-  // Serial.print(F(" \t"));
-
-  // Serial.print(F(" X: "));
-  // Serial.print(x_now);
-  // Serial.print(F(", Y: "));
-  // Serial.println(y_now);
-   
 
   // print on OLED
     
@@ -519,18 +481,7 @@ void getSensorData_print_update(appManager* appMgr) {
     snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
     snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temperature);   
     snprintf(load_Buff, sizeof(load_Buff), "%.4f", load);   
-     
-    memset(&hum, 0, sizeof(hum));
-    memset(&temp, 0, sizeof(temperature));
-    memset(&load, 0, sizeof(load));
-
-    // hum = NULL;
-    // temperature = NULL;
-    // load = NULL;
-
-    // screen.clearDisplay();
-    // screen.display();  
-
+      
 
 if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
    displayOn = true; 
@@ -645,31 +596,26 @@ if(displayOn) {
 
       char jsonBuffer[150];
       serializeJson(doc, jsonBuffer); // print to client
-      publishOnMqtt(jsonBuffer, appMgr->conManager);
+
+      if(!(appMgr->conManager->client.connected())) {
+
+           connectAWS(appMgr->conManager); 
+      }
+         publishOnMqtt(jsonBuffer, appMgr->conManager);
+         Serial.println("Published ");
+         updateNeeded = false;
+      
+      
       // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
       //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
       
       
-      Serial.println("Published updated sensor data.");
-      updateNeeded = false;
+
   } else {
       //Serial.println("No significant change in sensor data. Skipping publish.");
   }
          
   // Serial.println(jsonBuffer);
-
-  // Free the allocated memory
-  memset(hum_Buff, 0, 100);
-  memset(temp_Buff, 0, 100);
-  memset(load_Buff, 0, 100);  
-
-  free(hum_Buff);
-  free(temp_Buff);
-  free(load_Buff);
-
-  hum_Buff = NULL;
-  temp_Buff = NULL; 
-  load_Buff = NULL;
  
 }
 

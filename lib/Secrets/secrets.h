@@ -2,7 +2,8 @@
 
 #include <app_config.h>
 
-#define SECRET
+#ifndef SECRET_H
+#define SECRET_H
 
 
 // Amazon Root CA 1
@@ -83,3 +84,5 @@ ukSIb4g3wBW7AA51P8lJdJSUnqYo8pWGKf6iR6Rkb514FfYbnlHeSBSKRKEEkO1P
 YAUc9iNgiCEtO1PuIRGPce+Wrc8fSNlrkaA8TQyitGjqdTVpqMyIg9M=
 -----END RSA PRIVATE KEY-----
 )KEY";
+
+#endif // SECRET_H
