@@ -32,8 +32,6 @@ WiFiManager wm; // WiFi Manager
 String sub_topic = AWS_IOT_SUBSCRIBE_TOPIC;
 String pub_topic = AWS_IOT_PUBLISH_TOPIC;
 char server[50] = AWS_ENDPOINT;
-// char mqttUser[20] = MQTT_USER;
-// char mqttPassword[20] = MQTT_PASSWORD;
 
 
 
@@ -73,10 +71,6 @@ void publishOnMqtt(char* data, connectionManager* con) {
 }
 
 void connectAWS(connectionManager * con) {
-
-  // WiFi.mode(WIFI_STA);
-  // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
-  // Serial.println("Connecting to Wi-Fi");
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
@@ -142,14 +136,12 @@ void reconnectWiFi(connectionManager  * con){
         digitalWrite(WIFI_LED,HIGH);
         Serial.println("Failed to connect");
         delay(3000);
-      //  ESP.restart();
         delay(5000);
     } 
     else {
         //if you get here you have connected to the WiFi  
         digitalWrite(WIFI_LED,LOW);  
         con->Wifi_status = true;   
-      //  Serial.println("Wifi connected...yeey :)");       
     }
 }
 
@@ -181,7 +173,6 @@ void resetWifi(connectionManager * con) {
     // wm.setConnectTimeout(TIMEOUT_INTERVAL);
     wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
-    // ESP.restart();
     digitalWrite(WIFI_LED,HIGH);
 }
 
