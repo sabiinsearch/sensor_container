@@ -13,6 +13,9 @@
 // Library for Load Sensor
  #include "HX711.h"
 
+ // library for DHT sensor
+ #include <DHT.h>
+
  // Library for Gyro Sensor
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
@@ -540,9 +543,7 @@ if(displayOn) {
          publishOnMqtt(jsonBuffer, appMgr->conManager);
          Serial.println("Published ");
          updateNeeded = false;
-      
-      
-      
+                 
       
 
   } else {
