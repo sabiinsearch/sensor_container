@@ -40,7 +40,7 @@ void setup()
   
   Serial.println("All Systems Initialized..");
 
-   loop_mgr(&managr);
+ 
 }
 
 void loop()
@@ -49,6 +49,6 @@ void loop()
   getSensorData_print_update(&managr);
   
   checkButtonPressed(&managr);
-  //client.loop();
+  loop_mgr(&managr);
   delay(100);
 }

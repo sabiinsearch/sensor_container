@@ -17,7 +17,7 @@
     #define THINGNAME               "container_sensors"        // Change this
     #define WIFI_SSID               "hukam"                    //change this
     #define WIFI_PASSWORD           "guest@13"                 //change this
-    #define AWS_ENDPOINT            "a3txmb12xz0kci-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL
+    #define AWS_ENDPOINT            "a3txmb12xz0kci-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL  // a3txmb12xz0kci // mine am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com
     #define AWS_IOT_PUBLISH_TOPIC   "container/sensors/data"           //change this
     #define AWS_IOT_SUBSCRIBE_TOPIC "container/sensors/cmd"           //change this
 
