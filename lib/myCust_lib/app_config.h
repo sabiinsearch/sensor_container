@@ -17,9 +17,9 @@
     #define THINGNAME               "container_sensors"        // Change this
     #define WIFI_SSID               "hukam"                    //change this
     #define WIFI_PASSWORD           "guest@13"                 //change this
-    #define AWS_ENDPOINT            "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL  // a3txmb12xz0kci // mine am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com
+    #define AWS_ENDPOINT            "a3txmb12xz0kci-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL  
     #define AWS_IOT_PUBLISH_TOPIC   "container/sensors/data"           //change this
-    #define AWS_IOT_SUBSCRIBE_TOPIC "container/sensoMama. Your equal net bank. Nigam. Thought a body eco network. On Cardo. I. Hey, Cortana. I. Slow. Yeah, to get everything. Now you worry. Oh, OK. Amita Ajay Muni recharge Karva. Last month. Last month. OK. Password. I. Family. What? Is. OK. Tera guest at. A guest at DOT. Com. Triple 7. Open program. rs/cmd"           //change this
+    #define AWS_IOT_SUBSCRIBE_TOPIC "container/sensors/cmd"           //change this
 
     #define PUBLILISH_INTERVAL  600 
     #define TIMEOUT_INTERVAL    120       // seconds
