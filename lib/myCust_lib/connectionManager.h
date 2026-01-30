@@ -12,6 +12,7 @@ typedef struct {
 
   WiFiManager wifi_manager;
 
+  PubSubClient client;
   bool radio_status;  
   bool ble_status;
   bool Wifi_status;
@@ -28,6 +29,7 @@ typedef struct {
   
    void checkConnections_and_reconnect(void *);
    void initWiFi();
+   void initNTP();
    void mqtt_loop();
    bool connectMQTT(connectionManager*);
    bool connectWiFi(connectionManager*);

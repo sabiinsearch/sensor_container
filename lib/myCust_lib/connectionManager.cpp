@@ -14,7 +14,7 @@
 
 
 #include <PubSubClient.h>   // for Mqtt
-#include "secrets.h"             //  for AWS Certificates and Keys
+#include "secrets.h"             //  for AWS Certificates and Keys"
 
 #include "app_config.h"     // for Custom Configration
 #include "receiverBoard.h"
@@ -32,8 +32,6 @@ WiFiManager wm; // WiFi Manager
 String sub_topic = AWS_IOT_SUBSCRIBE_TOPIC;
 String pub_topic = AWS_IOT_PUBLISH_TOPIC;
 char server[50] = AWS_ENDPOINT;
-// char mqttUser[20] = MQTT_USER;
-// char mqttPassword[20] = MQTT_PASSWORD;
 
 
 
@@ -43,6 +41,7 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
    
   //  initConfig(me);
    //resetWifi(me);       // To Reset Wifi
+   me->client = pub_sub_client;
    connectWiFi(me);
    connectAWS(me);
 
@@ -73,10 +72,6 @@ void publishOnMqtt(char* data, connectionManager* con) {
 
 void connectAWS(connectionManager * con) {
 
-  // WiFi.mode(WIFI_STA);
-  // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
-  // Serial.println("Connecting to Wi-Fi");
-
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
   net.setCertificate(AWS_CERT_CRT);
@@ -85,6 +80,9 @@ void connectAWS(connectionManager * con) {
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
   pub_sub_client.setServer(AWS_ENDPOINT, 8883);
+
+  // Increase buffer size for larger payloads (JSON with time)
+  pub_sub_client.setBufferSize(512);
 
   // Create a message handler
   pub_sub_client.setCallback(messageHandler);
@@ -109,6 +107,15 @@ void connectAWS(connectionManager * con) {
   Serial.println("AWS IoT Connected!");
 }
 
+void initNTP() {
+    // Configure time using NTP
+    // 19800 = GMT offset for IST (UTC +5:30)
+    // 0 = Daylight offset in seconds
+    // "pool.ntp.org" = NTP server
+    configTime(19800, 0, "pool.ntp.org");
+    Serial.println("NTP Configured");
+}
+
 
 void loop_con(connectionManager* con) {
   pub_sub_client.loop();
@@ -129,14 +136,12 @@ void reconnectWiFi(connectionManager  * con){
         digitalWrite(WIFI_LED,HIGH);
         Serial.println("Failed to connect");
         delay(3000);
-      //  ESP.restart();
         delay(5000);
     } 
     else {
         //if you get here you have connected to the WiFi  
         digitalWrite(WIFI_LED,LOW);  
         con->Wifi_status = true;   
-      //  Serial.println("Wifi connected...yeey :)");       
     }
 }
 
@@ -157,7 +162,8 @@ bool connectWiFi(connectionManager * con) {
         con->Wifi_status = true;
         digitalWrite(HEARTBEAT_LED,HIGH);
         digitalWrite(WIFI_LED,LOW);   
-      //  Serial.println("Wifi connected...yeey :)");           
+      //  Serial.println("Wifi connected...yeey :)");     
+        initNTP();      
     }
     return res;
 }
@@ -167,7 +173,6 @@ void resetWifi(connectionManager * con) {
     // wm.setConnectTimeout(TIMEOUT_INTERVAL);
     wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
-    // ESP.restart();
     digitalWrite(WIFI_LED,HIGH);
 }
 
