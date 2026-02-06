@@ -380,7 +380,10 @@ void getSensorData_print_update(appManager* appMgr) {
   }
 
   scale.power_down();
-  
+
+  Serial.print("Load: ");
+  Serial.print(load);
+  Serial.println(" grams");  
   // check if all sensor data is changed
   if (((hum - (appMgr->prev_hum)) > 0.01) || (((appMgr->prev_hum) - hum) > 0.01)) {
           appMgr->prev_hum = hum;
