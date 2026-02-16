@@ -13,19 +13,25 @@
 // Library for Load Sensor
  #include "HX711.h"
 
- // library for DHT sensor
- #include <DHT.h>
-
  // Library for Gyro Sensor
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 
+//#include <Adafruit_BMP280.h> // Libraries for BMP280
+#include <DHT.h>             // Libraries for DHT22     
+
 // Custom Libraries
+//#include "app_config.h"
 #include "appManager.h"
 #include "connectionManager.h"
 
 #include "receiverBoard.h"
+// #include "sensor.h"
+// Libraries for Load Cell
+#include <Arduino.h> 
+#include "EEPROM.h"
 #include "Preferences.h"
+// #include "HX711.h"
 #include "soc/rtc.h"
 #include "esp32-hal-cpu.h"
 
@@ -47,6 +53,7 @@ bool screen_state = false;
 bool displayOn = false;
 
 long displayOn_start;
+//float x_now,y_now,x_pre,y_prev;
 float x_start;
 float y_start;
 
@@ -55,7 +62,7 @@ bool updateNeeded = false;
 int counter;
 
 // Create BMP280 object
-// Create BMP280 object
+//Adafruit_BMP280 bmp; // I2C
 #define DHT_pin      4
 #define DHT_type     DHT11
 
@@ -265,6 +272,26 @@ void readyScreen() {
 
 
    // Action as per time period of pressing button
+
+    //  if((count_press >0) && (count_press<1500)) {
+        
+    //     bool flag = true;  //  to check if control goes to On or Off only
+
+    //       if (appMgr->switch_val == 1){
+    //         Serial.println("Energy Monitoring Off..");
+    //         setSwitchOff(appMgr);
+    //         flag = false;
+    //         Serial.print("Flag is set to false..");
+    //       } 
+          
+    //       if((appMgr->switch_val == 0) && (flag==true)) {
+    //           Serial.println("Energy Monitoring On..");
+    //           setSwitchOn(appMgr);
+    //         }
+    //       delay(100);             
+    //       broadcast_appMgr(appMgr);
+
+    //   }
      
         
      if((count_press >10) && (count_press<4000)) {
@@ -272,6 +299,7 @@ void readyScreen() {
             
             Serial.println("Wifi Resetting.."); 
 
+//            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
             screen.setCursor(100,48); 
             screen.setTextSize(2);
             // screen.setFont(&FreeMonoBold9pt7b);
@@ -289,6 +317,16 @@ void readyScreen() {
             connectWiFi(appMgr->conManager);            
 
      }
+   // if((count_press >10) && (count_press<4000)) {} // For another operation
+
+    //  if((count_press >3400) && (count_press<6000)) {
+
+    //           setBoardWithLC(appMgr);
+    //  }
+     // Explicitly free the memory when done
+      // free(press_start);
+      // free(press_end);
+      // free(count_press);
 
    }
     
@@ -299,7 +337,12 @@ void initDHT() {
     dht.begin();
 }
 
-
+// void initBMP280() {
+//   if (!bmp.begin(0x76)) {
+//     Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
+//     while (1);
+//   }
+// }
 
 void initScreen() {
 
@@ -333,7 +376,37 @@ void loop_mgr(appManager* appMgr) {
 }
 
 
-//function to get sensor data and update appManager
+// float getTemp() {
+//     return dht.readTemperature();
+// }
+
+// float getHum() {
+//     return dht.readHumidity();
+// }
+
+// float getPressure() {
+//     return bmp.readPressure() / 100.0F;
+// }
+
+// float getLoad(appManager* appMgr) {
+  
+//    float units; 
+//      if(appMgr->scale.is_ready()) {
+//       units = appMgr->scale.get_units(10);
+//      } 
+    
+//   // if (units < 0)
+//   // {
+//   //   units = 0.00;
+//   // }
+// //  float ounces = units * 0.035274;
+//   // Serial.print(units);
+//   // Serial.print(" grams");
+//      return units;
+//   //  return LOAD_Demo; // for demo purpose;
+    
+    
+// }
 
 
 //function to get sensor data and update appManager
@@ -446,14 +519,14 @@ if(displayOn) {
     screen.fillRect(65, 5, 15, 30, SH110X_BLACK); // To clear a specific area
     screen.display();
     
-
+//    printOnScreen(65,5,1,1,hum_Buff);
         screen.setCursor(65,5); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(hum_Buff);
         screen.println();
 
-
+//    printOnScreen(95,5,1,1,F("% "));
         screen.setCursor(95,5); 
         screen.setTextSize(1);
         screen.setTextColor(1);
@@ -463,14 +536,14 @@ if(displayOn) {
     // screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
     // screen.display();
     
- 
+//   printOnScreen(65,20,1,1,temp_Buff); 
         screen.setCursor(65,20); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(temp_Buff);
         screen.println();
     
-
+//  printOnScreen(95,20,1,1,F("C"));
         screen.setCursor(95,20); 
         screen.setTextSize(1);
         screen.setTextColor(1);
@@ -480,21 +553,21 @@ if(displayOn) {
      screen.fillRect(65, 35, 20, 10, SH110X_BLACK); // To clear a specific area
     // screen.display();
     
-   
+  //  printOnScreen(65,35,1,1,load_Buff); 
         screen.setCursor(65,35); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(load_Buff);
         screen.println();
 
-   
+   //printOnScreen(95,35,1,1,F("grams "));
         screen.setCursor(95,35); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(F("grams "));
         screen.println();
 
-   
+   //printOnScreen(0,45,1,1,"--------------------");
 
      screen.display(); // actually display all of the above 
 
@@ -519,6 +592,8 @@ if(displayOn) {
       // Increase size for time string
       StaticJsonDocument<512> doc;  
       
+      doc["UID"] = UNIQUE_ID;
+      
       // Get current time
       struct tm timeinfo;
       if(getLocalTime(&timeinfo)){
@@ -528,11 +603,12 @@ if(displayOn) {
       } else {
         doc["time"] = "NTP_SYNC_FAILED";
       }
-
+      
+      
       doc["humidity"] = hum_Buff;
       doc["temperature"] = temp_Buff;
       doc["Load"] = load_Buff;
-      doc["device_id"] = UNIQUE_ID;  // Add unique ID to JSON
+    
 
       char jsonBuffer[512]; // Increased buffer size
       serializeJson(doc, jsonBuffer); // print to client
@@ -544,14 +620,17 @@ if(displayOn) {
          publishOnMqtt(jsonBuffer, appMgr->conManager);
          Serial.println("Published ");
          updateNeeded = false;
-                 
+      
+      
+      // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+      //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
       
 
   } else {
-      
+      //Serial.println("No significant change in sensor data. Skipping publish.");
   }
          
-  
+  // Serial.println(jsonBuffer);
  
 }
 
@@ -586,7 +665,24 @@ void initRGB(){
 
 // initialize the Scale
     
+// HX711 setLoadCell(appManager * appMgr) {
+   
+//     HX711 scale_local;
+    
+//     //rtc_clk_cpu_freq_set_config(RTC_CPU_FREQ_80M);   //  RTC_CPU_FREQ_80M
+//     setCpuFrequencyMhz(80); 
 
+//     Serial.print("Initializing scale... ");  
+//     scale_local.begin(data_pin,clk_pin);
+//     scale_local.set_scale(CALIBRATION_FACTOR);
+//     Serial.print("Scale Calibrated... ");  
+
+//     if(scale_local.is_ready()) {
+//        Serial.print("Scale is ready..");  
+//     }
+    
+//     return scale_local;
+//  }
 
  
 
