@@ -592,6 +592,8 @@ if(displayOn) {
       // Increase size for time string
       StaticJsonDocument<512> doc;  
       
+      doc["UID"] = UNIQUE_ID;
+      
       // Get current time
       struct tm timeinfo;
       if(getLocalTime(&timeinfo)){
@@ -602,7 +604,7 @@ if(displayOn) {
         doc["time"] = "NTP_SYNC_FAILED";
       }
       
-      doc["UID"] = UNIQUE_ID;
+      
       doc["humidity"] = hum_Buff;
       doc["temperature"] = temp_Buff;
       doc["Load"] = load_Buff;
