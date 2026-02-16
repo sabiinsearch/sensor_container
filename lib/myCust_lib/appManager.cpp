@@ -517,7 +517,7 @@ if(displayOn) {
   if (updateNeeded) {
 
       // Increase size for time string
-      StaticJsonDocument<256> doc;  
+      StaticJsonDocument<512> doc;  
       
       // Get current time
       struct tm timeinfo;
