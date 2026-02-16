@@ -590,7 +590,7 @@ if(displayOn) {
   if (updateNeeded) {
 
       // Increase size for time string
-      StaticJsonDocument<256> doc;  
+      StaticJsonDocument<512> doc;  
       
       // Get current time
       struct tm timeinfo;
@@ -605,6 +605,7 @@ if(displayOn) {
       doc["humidity"] = hum_Buff;
       doc["temperature"] = temp_Buff;
       doc["Load"] = load_Buff;
+      doc["UID"] = UNIQUE_ID;
 
       char jsonBuffer[512]; // Increased buffer size
       serializeJson(doc, jsonBuffer); // print to client
