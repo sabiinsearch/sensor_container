@@ -532,6 +532,7 @@ if(displayOn) {
       doc["humidity"] = hum_Buff;
       doc["temperature"] = temp_Buff;
       doc["Load"] = load_Buff;
+      doc["device_id"] = UNIQUE_ID;  // Add unique ID to JSON
 
       char jsonBuffer[512]; // Increased buffer size
       serializeJson(doc, jsonBuffer); // print to client

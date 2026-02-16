@@ -9,6 +9,8 @@
 #define HUMIDITY_Demo  105.0
 #define LOAD_Demo      100
 
+//
+#define UNIQUE_ID "container_001"  // change this for each device
 // For Load Cell
 #define CALIBRATION_FACTOR_LOADCELL 2230 // this calibration factor is adjusted according to my load cell
 
