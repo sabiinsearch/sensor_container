@@ -601,11 +601,12 @@ if(displayOn) {
       } else {
         doc["time"] = "NTP_SYNC_FAILED";
       }
-
+      
+      doc["UID"] = UNIQUE_ID;
       doc["humidity"] = hum_Buff;
       doc["temperature"] = temp_Buff;
       doc["Load"] = load_Buff;
-      doc["UID"] = UNIQUE_ID;
+    
 
       char jsonBuffer[512]; // Increased buffer size
       serializeJson(doc, jsonBuffer); // print to client
