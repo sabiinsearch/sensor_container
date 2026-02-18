@@ -16,6 +16,7 @@ typedef struct {
      float prev_hum;
      float prev_temp;
      float prev_load;
+     float load_threshold;
      
 } appManager;
 

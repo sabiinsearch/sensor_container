@@ -250,14 +250,14 @@ void readyScreen() {
 
  void checkButtonPressed(appManager* appMgr) {
   
-    if((digitalRead(reset_pin))==LOW) {   // check if the button is pressed
+    if((digitalRead(LOAD_CELL_RESET_PIN))==LOW) {   // check if the button is pressed
         long press_start = millis();
         long press_end = press_start;
         int count_press = 0;
 
     // count period of button pressed
 
-        while (digitalRead(reset_pin) == LOW) {
+        while (digitalRead(LOAD_CELL_RESET_PIN) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
           if(count_press>4000) {            
@@ -265,7 +265,7 @@ void readyScreen() {
           }   
         }
 
-            digitalWrite(reset_pin,HIGH); // unpress button  
+            digitalWrite(LOAD_CELL_RESET_PIN,HIGH); // unpress button  
             Serial.print("Button pressed for: ");
             Serial.println(count_press);            
 
@@ -649,8 +649,6 @@ void initRGB(){
 
  void initBoard() {  
   // Configuring Board pins
-  pinMode(reset_pin, OUTPUT);
-  digitalWrite(reset_pin,HIGH);
 
   pinMode(SDA, INPUT_PULLUP);
   pinMode(SCL, INPUT_PULLUP);
@@ -658,6 +656,8 @@ void initRGB(){
   digitalWrite(SDA, HIGH);
   digitalWrite(SCL, HIGH);
 
+  pinMode(LOAD_CELL_RESET_PIN, INPUT_PULLUP); 
+  digitalWrite(LOAD_CELL_RESET_PIN,HIGH);
   initRGB();
 
  }
