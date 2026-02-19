@@ -12,6 +12,7 @@
 
 // Library for Load Sensor
  #include "HX711.h"
+ #include "Preferences.h"
 
  // Library for Gyro Sensor
 #include <Adafruit_MPU6050.h>
@@ -37,6 +38,8 @@
 
 
 connectionManager conManagerr;
+
+Preferences pref;
 
 // Create Load Cell 
 HX711  scale(SDA, SCL); 
@@ -68,7 +71,6 @@ int counter;
 
 DHT dht(DHT_pin, DHT_type);   // DHT sensor object
 
-Preferences pref;
    
   void initGyroSensor(appManager* appMgr) {
 
@@ -153,21 +155,32 @@ Preferences pref;
 
   }
 
-   void initLoadCell(appManager* appMgr) {        
+   void initLoadCell(appManager* appMgr) {   
+
+        // Initiate preferences   
+      pref.begin("app_conf",false);
+
+    // get threshold from cloud
+      appMgr->load_threshold= pref.getFloat("threshold");
+      Serial.print("Preferences Threshold: ");
+      Serial.println(appMgr->load_threshold);    
         scale.begin(SDA, SCL);
         scale.set_scale(CALIBRATION_FACTOR_LOADCELL);
         scale.tare();
+
+        appMgr->scale = scale; // set the scale object in appManager
+       
+        pref.end();
         // Serial.print("Scale Initialized... ");
    }
 
 /* constructor implementation */
 
 void appManager_ctor(appManager * const me) {
- 
+
+      
     // Start I2C on custom pins (for ESP32)
   Wire.begin(SDA, SCL);
-
-  
 
   initBoard();
   Serial.println("Board Initialized..");
@@ -250,14 +263,14 @@ void readyScreen() {
 
  void checkButtonPressed(appManager* appMgr) {
   
-    if((digitalRead(reset_pin))==LOW) {   // check if the button is pressed
+    if((digitalRead(LOAD_CELL_RESET_PIN))==LOW) {   // check if the button is pressed
         long press_start = millis();
         long press_end = press_start;
         int count_press = 0;
 
     // count period of button pressed
 
-        while (digitalRead(reset_pin) == LOW) {
+        while (digitalRead(LOAD_CELL_RESET_PIN) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
           if(count_press>4000) {            
@@ -265,7 +278,7 @@ void readyScreen() {
           }   
         }
 
-            digitalWrite(reset_pin,HIGH); // unpress button  
+            digitalWrite(LOAD_CELL_RESET_PIN,HIGH); // unpress button  
             Serial.print("Button pressed for: ");
             Serial.println(count_press);            
 
@@ -273,50 +286,38 @@ void readyScreen() {
 
    // Action as per time period of pressing button
 
-    //  if((count_press >0) && (count_press<1500)) {
+     if((count_press >100) && (count_press<4000)) {
         
-    //     bool flag = true;  //  to check if control goes to On or Off only
+        Serial.println("Resetting Load Cell..");
+        reset_Load_Cell(appMgr);
 
-    //       if (appMgr->switch_val == 1){
-    //         Serial.println("Energy Monitoring Off..");
-    //         setSwitchOff(appMgr);
-    //         flag = false;
-    //         Serial.print("Flag is set to false..");
-    //       } 
-          
-    //       if((appMgr->switch_val == 0) && (flag==true)) {
-    //           Serial.println("Energy Monitoring On..");
-    //           setSwitchOn(appMgr);
-    //         }
-    //       delay(100);             
-    //       broadcast_appMgr(appMgr);
-
-    //   }
+       }
      
         
-     if((count_press >10) && (count_press<4000)) {
-          // reset settings - wipe stored credentials for testing, these are stored by the esp library
+//      if((count_press >2000) && (count_press<4000)) {
+//           // reset settings - wipe stored credentials for testing, these are stored by the esp library
             
-            Serial.println("Wifi Resetting.."); 
+//             Serial.println("Wifi Resetting.."); 
 
-//            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
-            screen.setCursor(100,48); 
-            screen.setTextSize(2);
-            // screen.setFont(&FreeMonoBold9pt7b);
-            screen.setTextColor(SH110X_WHITE);
-            screen.print(".");
-            screen.println();
-            screen.display(); // actually display all of the above
-            delay(20);
+// //            screen.fillRect(27, 47, 81, 16, SH110X_WHITE); // To clear a specific area
+//             screen.setCursor(100,48); 
+//             screen.setTextSize(2);
+//             // screen.setFont(&FreeMonoBold9pt7b);
+//             screen.setTextColor(SH110X_WHITE);
+//             screen.print(".");
+//             screen.println();
+//             screen.display(); // actually display all of the above
+//             delay(20);
             
-            screen_state = false;
-            digitalWrite(WIFI_LED,HIGH);
-            digitalWrite(HEARTBEAT_LED,LOW);
+//             screen_state = false;
+//             digitalWrite(WIFI_LED,HIGH);
+//             digitalWrite(HEARTBEAT_LED,LOW);
             
-            resetWifi(appMgr->conManager);      
-            connectWiFi(appMgr->conManager);            
+//             resetWifi(appMgr->conManager);      
+//             connectWiFi(appMgr->conManager);            
 
-     }
+//      }
+
    // if((count_press >10) && (count_press<4000)) {} // For another operation
 
     //  if((count_press >3400) && (count_press<6000)) {
@@ -408,6 +409,56 @@ void loop_mgr(appManager* appMgr) {
     
 // }
 
+// function to initialize to reset load cell and set it in appManager
+
+
+void reset_Load_Cell(appManager* appMgr) {
+
+  HX711 scale_local;
+    
+    //rtc_clk_cpu_freq_set_config(RTC_CPU_FREQ_80M);   //  RTC_CPU_FREQ_80M
+    setCpuFrequencyMhz(80); 
+
+    Serial.print("Initializing scale... ");  
+    scale_local.begin(SDA, SCL);
+    scale_local.set_scale(CALIBRATION_FACTOR_LOADCELL);
+    Serial.print("Scale Calibrated... ");  
+
+    if(scale_local.is_ready()) {
+       Serial.print("Scale is ready..");  
+    }
+    
+  appMgr->scale = scale_local; // set the scale object in appManager
+
+  pref.begin("app_conf");
+
+  Serial.println("Sync container with LC.");
+
+  float reading;
+
+  long loop_start = millis();
+    while(!appMgr->scale.is_ready()) {
+      delay(10); 
+      if (millis() - loop_start > 2000) break; // 2s timeout
+  }
+
+  if(appMgr->scale.is_ready()) { 
+
+   reading = (float)(scale_local.get_units(10));
+  }
+
+  if(reading<0) {
+     reading = reading * (-1);
+  }
+
+  
+  pref.putFloat("threshold",reading);
+  appMgr->load_threshold = reading;
+  Serial.print("Threshold set in Preferences and appManager as per Load Cell..");
+  //Serial.println(appMgr->load_threshold);
+  Serial.println(reading);
+  pref.end();
+}
 
 //function to get sensor data and update appManager
 
@@ -434,7 +485,9 @@ void getSensorData_print_update(appManager* appMgr) {
   delay(10);
   
   float load = 0.00; 
-  scale.power_up();
+
+  appMgr->scale.power_up();
+
   initLoadCell(appMgr);
   
   // Add timeout or delay to prevent infinite loop WDT reset
@@ -444,15 +497,19 @@ void getSensorData_print_update(appManager* appMgr) {
       if (millis() - loop_start > 2000) break; // 2s timeout
   }
   
-  if(scale.is_ready()) {  
-    load = (float)(scale.get_units(10));
+  
+  if(appMgr->scale.is_ready()) {  
+    load = (float)(appMgr->scale.get_units(10));
     if (load < 0)
     {
-      load = 0.00;
+      load = load + appMgr->load_threshold; // Adjust load with threshold
     }    
+    else {
+      load = load - appMgr->load_threshold; // Adjust load with threshold
+    }
   }
 
-  scale.power_down();
+  appMgr->scale.power_down();
   
   // check if all sensor data is changed
   if (((hum - (appMgr->prev_hum)) > 0.01) || (((appMgr->prev_hum) - hum) > 0.01)) {
@@ -649,8 +706,6 @@ void initRGB(){
 
  void initBoard() {  
   // Configuring Board pins
-  pinMode(reset_pin, OUTPUT);
-  digitalWrite(reset_pin,HIGH);
 
   pinMode(SDA, INPUT_PULLUP);
   pinMode(SCL, INPUT_PULLUP);
@@ -658,6 +713,8 @@ void initRGB(){
   digitalWrite(SDA, HIGH);
   digitalWrite(SCL, HIGH);
 
+  pinMode(LOAD_CELL_RESET_PIN, INPUT_PULLUP); 
+  digitalWrite(LOAD_CELL_RESET_PIN,HIGH);
   initRGB();
 
  }
@@ -683,6 +740,10 @@ void initRGB(){
     
 //     return scale_local;
 //  }
+
+ 
+
+
 
  
 

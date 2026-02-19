@@ -29,7 +29,7 @@
 
 // DECLARE OTHER PARTS OF RECEIVER BOARD
 
-  #define reset_pin         12    
+  #define LOAD_CELL_RESET_PIN         33    
 
 // #define reset_pin          22
 
