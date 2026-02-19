@@ -14,7 +14,6 @@
 
 
 #include <PubSubClient.h>   // for Mqtt
-#include "secrets.h"             //  for AWS Certificates and Keys"
 
 #include "app_config.h"     // for Custom Configration
 #include "receiverBoard.h"
@@ -28,13 +27,6 @@ WiFiClientSecure net = WiFiClientSecure();
 PubSubClient pub_sub_client(net);
 
 WiFiManager wm; // WiFi Manager 
-
-String sub_topic = AWS_IOT_SUBSCRIBE_TOPIC;
-String pub_topic = AWS_IOT_PUBLISH_TOPIC;
-char server[50] = AWS_ENDPOINT;
-// char mqttUser[20] = MQTT_USER;
-// char mqttPassword[20] = MQTT_PASSWORD;
-
 
 
 /* constructor implementation */
@@ -79,9 +71,9 @@ void connectAWS(connectionManager * con) {
   // Serial.println("Connecting to Wi-Fi");
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA);
-  net.setCertificate(AWS_CERT_CRT);
-  net.setPrivateKey(AWS_CERT_PRIVATE);
+  // net.setCACert(AWS_CERT_CA);
+  // net.setCertificate(AWS_CERT_CRT);
+  // net.setPrivateKey(AWS_CERT_PRIVATE);
   
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
