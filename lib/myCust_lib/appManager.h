@@ -4,7 +4,7 @@
 // #include "app_config.h"
 // #include "receiverBoard.h"
  #include "connectionManager.h"
-//#include "HX711.h"
+#include "HX711.h"
 // #include <HX711_ADC.h>
 
 /*Application Manager's attributes*/
@@ -17,6 +17,7 @@ typedef struct {
      float prev_temp;
      float prev_load;
      float load_threshold;
+     HX711 scale;
      
 } appManager;
 
@@ -36,6 +37,7 @@ void setBoardWithLC(appManager*);
 void getSensorData_print_update(appManager*);
 void loop_mgr(appManager*);
 void checkButtonPressed(appManager*);
+void reset_Load_Cell(appManager*);
 
 
 
