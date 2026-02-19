@@ -286,7 +286,7 @@ void readyScreen() {
 
    // Action as per time period of pressing button
 
-     if((count_press >100) && (count_press<4000)) {
+     if((count_press >100) && (count_press<10000)) {
         
         Serial.println("Resetting Load Cell..");
         reset_Load_Cell(appMgr);
