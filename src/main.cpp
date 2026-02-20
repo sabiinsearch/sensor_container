@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <esp_now.h>
-#include "WiFi.h"
+#include <WiFi.h>
 
 // my library
 #include "receiverBoard.h"
@@ -22,21 +22,23 @@ struct_message myData;
 
 // Send callback
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
   digitalWrite(HEARTBEAT_LED, HIGH);
-  delay(200);  
+  delay(100);  
   digitalWrite(HEARTBEAT_LED, LOW);
-  delay(200);
 }
 
 // Receive callback
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
+  Serial.print("Bytes received: ");
+  Serial.println(len);
+  Serial.print("Temp: ");
   Serial.println(myData.temp);
   digitalWrite(HEARTBEAT_LED, HIGH);
-  delay(200);  
+  delay(100);  
   digitalWrite(HEARTBEAT_LED, LOW);
-  delay(200);
 }
 
 void setupESP_NOW()
@@ -74,12 +76,18 @@ void setupESP_NOW()
 
 void setup() {
   Serial.begin(115200);
+  while (!Serial) {
+    delay(10);
+  }
+  delay(1000); // Extra delay for stability
+  
   intBoard();
   setupESP_NOW();
 }
 
 void loop() {
-    delay(1000);    
+    delay(1000); 
+    //Serial.println("In Loop");   
     myData.id = 1;
     myData.temp = 24.5;
     esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &myData, sizeof(myData));
