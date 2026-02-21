@@ -161,14 +161,13 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
       pref.begin("app_conf",false);
 
     // get threshold from cloud
-     if((pref.getFloat("threshold",0))==0) { 
-        pref.putFloat("threshold",0.0);     
+     if((pref.getFloat("threshold",0))==0) {  
+        pref.putFloat("threshold",0.0);    
         appMgr->load_threshold = 0.0;
      }
       else {
         appMgr->load_threshold = pref.getFloat("threshold");
       }
-
       Serial.print("Preferences Threshold: ");
       Serial.println(appMgr->load_threshold);    
         scale.begin(SDA, SCL);
@@ -202,6 +201,7 @@ void appManager_ctor(appManager * const me) {
   // Serial.print("Scale set with appMgr.. ");
   // // broadcast_appMgr(me);
    initLoadCell(me);
+
    Serial.println("Load Cell Initialized..");
 
    initGyroSensor(me);
