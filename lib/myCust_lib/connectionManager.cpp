@@ -77,7 +77,6 @@ void connectAWS(connectionManager * con) {
   net.setCertificate(AWS_CERT_CRT);
   net.setPrivateKey(AWS_CERT_PRIVATE);
   
-  
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
   pub_sub_client.setServer(AWS_ENDPOINT, 8883);
