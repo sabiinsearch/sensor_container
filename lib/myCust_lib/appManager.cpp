@@ -161,7 +161,13 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
       pref.begin("app_conf",false);
 
     // get threshold from cloud
-      appMgr->load_threshold= pref.getFloat("threshold");
+     if((pref.getFloat("threshold",0))==0) {      
+        appMgr->load_threshold = 0.0;
+     }
+      else {
+        appMgr->load_threshold = pref.getFloat("threshold");
+      }
+
       Serial.print("Preferences Threshold: ");
       Serial.println(appMgr->load_threshold);    
         scale.begin(SDA, SCL);
