@@ -31,7 +31,7 @@ rqXRfboQnoZsG4q5WTP468SQvvG5
 )EOF";
 
 // Device Certificate                                               //change this
-static const char AWS_CERT_CRT[] PROGMEM = R"KEY(
+static const char AWS_CERT_CRT[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
 MIIDWTCCAkGgAwIBAgIUQ2J3RITGnQuxuWPTtE3CStLeTSMwDQYJKoZIhvcNAQEL
 BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g
@@ -52,10 +52,10 @@ TYXHbkMFdTas6Xd4iufyKhCHV4u4dzx2EuFayj73ZNxRdMNqLeI+Yr3M52PsVOVM
 cBp8TXCzckqeyg8jl6RlbpfDIRvKNO3OYRLK2y/i/qWC7rtsSzrCySIVKz2fJBx5
 bZnB/jGcWglfpLOXJwvQkFdlzTg0pKbpKaRR4dxVP6YvruM4Si6RSixhUcKR
 -----END CERTIFICATE-----
-)KEY";
+)EOF";
 
 // Device Private Key                                               //change this
-static const char AWS_CERT_PRIVATE[] PROGMEM = R"KEY(
+static const char AWS_CERT_PRIVATE[] PROGMEM = R"EOF(
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAyyJJMCf8Xx89eweFYqRab7enpKzbmYKcjWWLSWC7563xNoeE
 aRCZTkwxu2Pzm/8l5VEAtvYnoTL8WqJCL56YQeOjI0GslNbJ/u+vwaIP4GXSaJJ1
@@ -83,6 +83,6 @@ DDAoDkUCgYEAxHp1Fh6lMB2iUulEZGPkPhQtN9j1ptzeJNHLBCM2mgZTnY2e67rJ
 ukSIb4g3wBW7AA51P8lJdJSUnqYo8pWGKf6iR6Rkb514FfYbnlHeSBSKRKEEkO1P
 YAUc9iNgiCEtO1PuIRGPce+Wrc8fSNlrkaA8TQyitGjqdTVpqMyIg9M=
 -----END RSA PRIVATE KEY-----
-)KEY";
+)EOF";
 
 #endif // SECRET_H
