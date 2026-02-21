@@ -19,7 +19,7 @@
 #define SCL                22
 
 // #define RGB LEDs
-#define HEARTBEAT_LED       27         // Red
+#define HEARTBEAT_LED       2  // 8         // Built-in LED
 #define WIFI_LED            14         // Green
 #define MQTT_LED            26         // Blue
 
