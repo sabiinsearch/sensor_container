@@ -161,7 +161,8 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
       pref.begin("app_conf",false);
 
     // get threshold from cloud
-     if((pref.getFloat("threshold",0))==0) {      
+     if((pref.getFloat("threshold",0))==0) { 
+        pref.putFloat("threshold",0.0);     
         appMgr->load_threshold = 0.0;
      }
       else {
