@@ -400,7 +400,7 @@ void loop_mgr(appManager* appMgr) {
   
 //    float units; 
 //      if(appMgr->scale.is_ready()) {
-//       units = appMgr->scale.get_units(10);
+//       units = appMgr->scale.get_units(10)*10;
 //      } 
     
 //   // if (units < 0)
@@ -451,7 +451,7 @@ void reset_Load_Cell(appManager* appMgr) {
 
   if(appMgr->scale.is_ready()) { 
 
-   reading = (float)(scale_local.get_units(10));
+   reading = (float)((scale_local.get_units(10)*10));
   }
 
   if(reading<0) {
@@ -506,7 +506,7 @@ void getSensorData_print_update(appManager* appMgr) {
   
   
   if(appMgr->scale.is_ready()) {  
-    load = (float)(appMgr->scale.get_units(10));
+    load = (float)((appMgr->scale.get_units(10))*10);
     if (load < 0)
     {
       load = load + appMgr->load_threshold; // Adjust load with threshold
