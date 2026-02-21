@@ -11,8 +11,6 @@
 
 //
 #define UNIQUE_ID "container_003"  // change this for each device
-
-
 // For Load Cell
 #define CALIBRATION_FACTOR_LOADCELL 2230 // this calibration factor is adjusted according to my load cell
 
@@ -21,7 +19,7 @@
     #define THINGNAME               "container_sensors"        // Change this
     #define WIFI_SSID               "hukam"                    //change this
     #define WIFI_PASSWORD           "guest@13"                 //change this
-    #define AWS_ENDPOINT            "am2i6420agb0f-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL
+    #define AWS_ENDPOINT            "a3txmb12xz0kci-ats.iot.ap-south-1.amazonaws.com"   // AWS MQTT Broker URL  
     #define AWS_IOT_PUBLISH_TOPIC   "container/sensors/data"           //change this
     #define AWS_IOT_SUBSCRIBE_TOPIC "container/sensors/cmd"           //change this
 

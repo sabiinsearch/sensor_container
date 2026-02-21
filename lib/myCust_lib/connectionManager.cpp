@@ -14,6 +14,7 @@
 
 
 #include <PubSubClient.h>   // for Mqtt
+#include "secrets.h"             //  for AWS Certificates and Keys"
 
 #include "app_config.h"     // for Custom Configration
 #include "receiverBoard.h"
@@ -27,6 +28,11 @@ WiFiClientSecure net = WiFiClientSecure();
 PubSubClient pub_sub_client(net);
 
 WiFiManager wm; // WiFi Manager 
+
+String sub_topic = AWS_IOT_SUBSCRIBE_TOPIC;
+String pub_topic = AWS_IOT_PUBLISH_TOPIC;
+char server[50] = AWS_ENDPOINT;
+
 
 
 /* constructor implementation */
@@ -66,14 +72,10 @@ void publishOnMqtt(char* data, connectionManager* con) {
 
 void connectAWS(connectionManager * con) {
 
-  // WiFi.mode(WIFI_STA);
-  // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
-  // Serial.println("Connecting to Wi-Fi");
-
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  // net.setCACert(AWS_CERT_CA);
-  // net.setCertificate(AWS_CERT_CRT);
-  // net.setPrivateKey(AWS_CERT_PRIVATE);
+  net.setCACert(AWS_CERT_CA);
+  net.setCertificate(AWS_CERT_CRT);
+  net.setPrivateKey(AWS_CERT_PRIVATE);
   
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
@@ -107,10 +109,10 @@ void connectAWS(connectionManager * con) {
 
 void initNTP() {
     // Configure time using NTP
-    // 0 = GMT offset in seconds
+    // 19800 = GMT offset for IST (UTC +5:30)
     // 0 = Daylight offset in seconds
     // "pool.ntp.org" = NTP server
-    configTime(0, 0, "pool.ntp.org");
+    configTime(19800, 0, "pool.ntp.org");
     Serial.println("NTP Configured");
 }
 
@@ -134,14 +136,12 @@ void reconnectWiFi(connectionManager  * con){
         digitalWrite(WIFI_LED,HIGH);
         Serial.println("Failed to connect");
         delay(3000);
-      //  ESP.restart();
         delay(5000);
     } 
     else {
         //if you get here you have connected to the WiFi  
         digitalWrite(WIFI_LED,LOW);  
         con->Wifi_status = true;   
-      //  Serial.println("Wifi connected...yeey :)");       
     }
 }
 
@@ -173,7 +173,6 @@ void resetWifi(connectionManager * con) {
     // wm.setConnectTimeout(TIMEOUT_INTERVAL);
     wm.setConfigPortalTimeout(TIMEOUT_INTERVAL); // If no access point name has been previously entered disable timeout
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
-    // ESP.restart();
     digitalWrite(WIFI_LED,HIGH);
 }
 
