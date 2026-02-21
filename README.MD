@@ -1,4 +1,4 @@
-Project to collect data from various sensors and push to cloud
+Project to collect data (UID, Time, Temp, Humidity and Load ) from container  and push to cloud
 
 
 

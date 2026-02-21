@@ -183,7 +183,7 @@ void appManager_ctor(appManager * const me) {
   Wire.begin(SDA, SCL);
 
   initBoard();
-  Serial.println("Board Initialized..");
+  Serial.println("Container Initialized..");
 
   initScreen();  
   Serial.println("Display Initialized.."); 
@@ -715,6 +715,7 @@ void initRGB(){
 
   pinMode(LOAD_CELL_RESET_PIN, INPUT_PULLUP); 
   digitalWrite(LOAD_CELL_RESET_PIN,HIGH);
+  
   initRGB();
 
  }
