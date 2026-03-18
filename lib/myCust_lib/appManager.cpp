@@ -55,6 +55,7 @@ bool screen_state = false;
 
 bool displayOn = false;
 
+
 long displayOn_start;
 //float x_now,y_now,x_pre,y_prev;
 float x_start;
@@ -255,17 +256,19 @@ void readyScreen() {
 
    delay(100);
    
-   printOnScreen(20,5,1,1,"HUM  - ");
+  //  printOnScreen(20,5,1,1,"HUM  - ");
 
-   printOnScreen(20,20,1,1,"TEMP - ");
+  //  printOnScreen(20,20,1,1,"TEMP - ");
 
-   printOnScreen(7,35,1,1,"WEIGHT - ");
+  //  printOnScreen(7,35,1,1,"WEIGHT - ");
 
    printOnScreen(0,45,1,1,"--------------------");
 
    printOnScreen(30,55,1,1,"V E O R A ");
 
    screen.display();   // actually display all of the above
+
+   screen_state = true;
 }
 
  void checkButtonPressed(appManager* appMgr) {
@@ -488,8 +491,14 @@ void getSensorData_print_update(appManager* appMgr) {
   float hum = dht.readHumidity();
   delay(10);
 
+  // checkGyro(appMgr);
+  // displayDataOnScreen(appMgr);
+
   float temperature = dht.readTemperature();
   delay(10);
+
+  // checkGyro(appMgr);
+  // displayDataOnScreen(appMgr);
   
   float load = 0.00; 
 
@@ -503,8 +512,7 @@ void getSensorData_print_update(appManager* appMgr) {
       delay(10); 
       if (millis() - loop_start > 2000) break; // 2s timeout
   }
-  
-  
+    
   if(appMgr->scale.is_ready()) {  
     load = (float)((appMgr->scale.get_units(10))*10);
     if (load < 0)
@@ -518,6 +526,10 @@ void getSensorData_print_update(appManager* appMgr) {
 
   appMgr->scale.power_down();
   
+  // checkGyro(appMgr);
+  // displayDataOnScreen(appMgr);
+
+
   // check if all sensor data is changed
   if (((hum - (appMgr->prev_hum)) > 0.01) || (((appMgr->prev_hum) - hum) > 0.01)) {
           appMgr->prev_hum = hum;
@@ -532,6 +544,8 @@ void getSensorData_print_update(appManager* appMgr) {
     updateNeeded = true;
   }
 
+  checkGyro(appMgr);
+  displayDataOnScreen(appMgr);
  
   char hum_Buff[20];
   char temp_Buff[20];
@@ -547,8 +561,8 @@ void getSensorData_print_update(appManager* appMgr) {
     snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temperature);   
     snprintf(load_Buff, sizeof(load_Buff), "%.1f", load);   
       
-
-if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
+/*
+if(((x_now) > x_start + 3) || ((x_now)<x_start-3) || ((y_now)>y_start+3) || ((y_now)<y_start-3)) {
    displayOn = true; 
    displayOn_start = millis();
    
@@ -648,7 +662,7 @@ if(displayOn) {
     }
 
   }
-
+ */
   // Update sensor data in cloud if there is any change in sensor data
 
   if (updateNeeded) {
@@ -726,6 +740,174 @@ void initRGB(){
 
  }
  
+ 
+ void displayDataOnScreen(appManager* appMgr) {
+
+  char hum_Buff[20];
+  char temp_Buff[20];
+  char load_Buff[20];
+
+  float hum = appMgr->prev_hum;
+  float temperature = appMgr->prev_temp;
+  float load = appMgr->prev_load;
+
+  // Serial.print(hum);
+  // Serial.print(" %\t");
+  // Serial.print(temperature);
+  // Serial.print(" *C\t");
+  // Serial.print(load);
+  // Serial.println(" grams");
+
+  int ndigits=5;  
+
+  // print on OLED
+    
+  // Convert the float to a string, storing it in buf
+ 
+    snprintf(hum_Buff, sizeof(hum_Buff), "%.0f", hum);
+    snprintf(temp_Buff, sizeof(temp_Buff), "%.0f", temperature);   
+    snprintf(load_Buff, sizeof(load_Buff), "%.1f", load); 
+
+     
+  // Serial.print(hum_Buff);
+  // Serial.print(" %\t");
+  // Serial.print(temp_Buff);
+  // Serial.print(" *C\t");
+  // Serial.print(load_Buff);
+  // Serial.println(" grams");    
+
+
+  if((WiFi.status() != WL_CONNECTED)) {   // Print Not connected symbol "." 
+   
+            screen.setCursor(100,48); 
+            screen.setTextSize(2);
+            // screen.setFont(&FreeMonoBold9pt7b);
+            screen.setTextColor(SH110X_WHITE);
+            screen.print(".");
+            screen.println();
+            screen.display(); // actually display all of the above
+            delay(10);
+
+   }  
+
+  //  if(!screen_state) {         
+
+       readyScreen();
+       screen_state = true;
+    
+    
+    if(WiFi.status() == WL_CONNECTED) {
+      screen.fillRect(20, 105, 70, 10, SH110X_BLACK); // To clear a specific area
+    }
+
+    displayOn_start = millis();
+
+    screen.fillRect(65, 5, 15, 30, SH110X_BLACK); // To clear a specific area
+    screen.display();
+    
+//    printOnScreen(65,5,1,1,hum_Buff);
+        screen.setCursor(65,5); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(hum_Buff);
+        printOnScreen(20,5,1,1,"HUM  - ");
+        
+        // Serial.println(" D=1");         
+        // delay(200);
+        screen.println();
+
+//    printOnScreen(95,5,1,1,F("% "));
+        screen.setCursor(95,5); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(F("% "));
+        screen.println();
+
+    // screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
+    // screen.display();
+    
+//   printOnScreen(65,20,1,1,temp_Buff); 
+        screen.setCursor(65,20); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(temp_Buff);
+        printOnScreen(20,20,1,1,"TEMP - ");          
+        // Serial.println(" D=2");         
+        // delay(200);        
+        screen.println();           
+    
+//  printOnScreen(95,20,1,1,F("C"));
+        screen.setCursor(95,20); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(F("C"));
+        screen.println();
+
+     screen.fillRect(65, 35, 20, 10, SH110X_BLACK); // To clear a specific area
+    // screen.display();
+    
+  //  printOnScreen(65,35,1,1,load_Buff); 
+        screen.setCursor(65,35); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(load_Buff);
+        printOnScreen(7,35,1,1,"WEIGHT - ");        
+        // Serial.println(" D=3");         
+        // delay(200);        
+        screen.println();
+
+   //printOnScreen(95,35,1,1,F("grams "));
+        screen.setCursor(95,35); 
+        screen.setTextSize(1);
+        screen.setTextColor(1);
+        screen.print(F("grams "));
+        screen.println();
+
+   //printOnScreen(0,45,1,1,"--------------------");
+
+     screen.display(); // actually display all of the above 
+
+    //  delay(DISPLAY_TIME);  
+    if((millis()-displayOn_start) > DISPLAY_TIME) {
+     
+     displayOn_start = 0; 
+     
+     displayOn = false;     // set Display off     
+
+     screen.clearDisplay();  // Clear Display
+     screen.display();
+     screen_state = false;
+    } 
+ // }
+  // Serial.print("**********");
+ }
+
+ void checkGyro(appManager* appMgr) {
+  
+  for(counter = 0;counter<45;counter++)
+  {  
+    mpu.getEvent(&a, &g, &temp);
+    delay(5);  
+  }
+  delay(10);
+  
+  // Use stack variables instead of malloc
+  float x_now = (float)(a.acceleration.x/.10);
+  float y_now = (float)(a.acceleration.y/.10);
+
+  if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
+   displayOn = true; 
+   x_start = x_now;
+   y_start = y_now;
+
+   displayDataOnScreen(appMgr);
+  }
+  Serial.print("X:");
+  Serial.print(x_now);
+  Serial.print(" \tY:");
+  Serial.print(y_now);
+  Serial.println();
+}
 
 // initialize the Scale
     

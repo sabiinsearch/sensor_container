@@ -38,7 +38,8 @@ void getSensorData_print_update(appManager*);
 void loop_mgr(appManager*);
 void checkButtonPressed(appManager*);
 void reset_Load_Cell(appManager*);
-
+void checkGyro(appManager* appMgr);
+void displayDataOnScreen(appManager* appMgr);
 
 
 // functions to set LEDs as per status
