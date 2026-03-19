@@ -256,11 +256,11 @@ void readyScreen() {
 
    delay(100);
    
-  //  printOnScreen(20,5,1,1,"HUM  - ");
+   printOnScreen(20,5,1,1,"HUM  - ");
 
-  //  printOnScreen(20,20,1,1,"TEMP - ");
+   printOnScreen(20,20,1,1,"TEMP - ");
 
-  //  printOnScreen(7,35,1,1,"WEIGHT - ");
+   printOnScreen(7,35,1,1,"WEIGHT - ");
 
    printOnScreen(0,45,1,1,"--------------------");
 
@@ -268,7 +268,7 @@ void readyScreen() {
 
    screen.display();   // actually display all of the above
 
-   screen_state = true;
+   //screen_state = true;
 }
 
  void checkButtonPressed(appManager* appMgr) {
@@ -707,8 +707,17 @@ if(displayOn) {
   } else {
       //Serial.println("No significant change in sensor data. Skipping publish.");
   }
-         
-  // Serial.println(jsonBuffer);
+
+    if(((millis()-displayOn_start) > DISPLAY_TIME) && screen_state) {
+     
+//     displayOn_start = 0; 
+     displayOn_start = 0; // reset display timer
+     displayOn = false;     // set Display off     
+     screen_state = false;
+     screen.clearDisplay();  // Clear Display
+     screen.display();
+
+    }   
  
 }
 
@@ -790,17 +799,22 @@ void initRGB(){
 
    }  
 
-  //  if(!screen_state) {         
+    if(displayOn) {        
 
+      if(!screen_state) {
        readyScreen();
        screen_state = true;
-    
-    
+      }
+
     if(WiFi.status() == WL_CONNECTED) {
       screen.fillRect(20, 105, 70, 10, SH110X_BLACK); // To clear a specific area
     }
 
-    displayOn_start = millis();
+       if(displayOn) {  
+          Serial.print("display_started: ");
+          Serial.println((millis()-displayOn_start));
+       }    
+    // displayOn_start = millis();
 
     screen.fillRect(65, 5, 15, 30, SH110X_BLACK); // To clear a specific area
     screen.display();
@@ -810,7 +824,7 @@ void initRGB(){
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(hum_Buff);
-        printOnScreen(20,5,1,1,"HUM  - ");
+//        printOnScreen(20,5,1,1,"HUM  - ");
         
         // Serial.println(" D=1");         
         // delay(200);
@@ -823,15 +837,15 @@ void initRGB(){
         screen.print(F("% "));
         screen.println();
 
-    // screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
-    // screen.display();
+     screen.fillRect(65, 20, 13, 13, SH110X_BLACK); // To clear a specific area
+     screen.display();
     
 //   printOnScreen(65,20,1,1,temp_Buff); 
         screen.setCursor(65,20); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(temp_Buff);
-        printOnScreen(20,20,1,1,"TEMP - ");          
+//        printOnScreen(20,20,1,1,"TEMP - ");          
         // Serial.println(" D=2");         
         // delay(200);        
         screen.println();           
@@ -843,15 +857,15 @@ void initRGB(){
         screen.print(F("C"));
         screen.println();
 
-     screen.fillRect(65, 35, 20, 10, SH110X_BLACK); // To clear a specific area
-    // screen.display();
+     screen.fillRect(65, 35, 30, 10, SH110X_BLACK); // To clear a specific area
+     screen.display();
     
   //  printOnScreen(65,35,1,1,load_Buff); 
         screen.setCursor(65,35); 
         screen.setTextSize(1);
         screen.setTextColor(1);
         screen.print(load_Buff);
-        printOnScreen(7,35,1,1,"WEIGHT - ");        
+//        printOnScreen(7,35,1,1,"WEIGHT - ");        
         // Serial.println(" D=3");         
         // delay(200);        
         screen.println();
@@ -868,17 +882,17 @@ void initRGB(){
      screen.display(); // actually display all of the above 
 
     //  delay(DISPLAY_TIME);  
-    if((millis()-displayOn_start) > DISPLAY_TIME) {
+    // if((millis()-displayOn_start) > DISPLAY_TIME) {
      
-     displayOn_start = 0; 
+    //  displayOn_start = 0; 
      
-     displayOn = false;     // set Display off     
+    //  displayOn = false;     // set Display off     
 
-     screen.clearDisplay();  // Clear Display
-     screen.display();
-     screen_state = false;
-    } 
- // }
+    //  screen.clearDisplay();  // Clear Display
+    //  screen.display();
+    //  screen_state = false;
+    // } 
+  }
   // Serial.print("**********");
  }
 
@@ -890,23 +904,43 @@ void initRGB(){
     delay(5);  
   }
   delay(10);
-  
-  // Use stack variables instead of malloc
-  float x_now = (float)(a.acceleration.x/.10);
-  float y_now = (float)(a.acceleration.y/.10);
 
-  if(((x_now) > x_start + 8) || ((x_now)<x_start-8) || ((y_now)>y_start+8) || ((y_now)<y_start-8)) {
+  float temp_val,x_now,y_now;
+  // Use stack variables instead of malloc
+  
+  for(int i=0; i<150; i++) {
+    temp_val += a.acceleration.x/0.10;
+  }
+  x_now = temp_val/150;
+  
+  temp_val = 0;
+  
+  for(int i=0; i<150; i++) {
+    temp_val += a.acceleration.y/0.10;
+  }
+  y_now = temp_val/150;
+
+  Serial.print("X:");
+  Serial.print(x_start);
+  Serial.print(" : ");
+  Serial.print(x_now);
+  Serial.print(" \tY: ");
+  Serial.print(y_start);
+  Serial.print(" : ");
+  Serial.print(y_now);
+  Serial.println();  
+  // float x_now = (float)(a.acceleration.x/.10);
+  // float y_now = (float)(a.acceleration.y/.10);
+    
+  if(((x_now) > x_start + 2) || ((x_now)<x_start-2) || ((y_now)>y_start+2) || ((y_now)<y_start-2)) {
    displayOn = true; 
+   displayOn_start = millis();
    x_start = x_now;
    y_start = y_now;
-
+   Serial.print(" Display On due to movement..");
    displayDataOnScreen(appMgr);
   }
-  Serial.print("X:");
-  Serial.print(x_now);
-  Serial.print(" \tY:");
-  Serial.print(y_now);
-  Serial.println();
+
 }
 
 // initialize the Scale
