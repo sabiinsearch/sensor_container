@@ -169,8 +169,8 @@ DHT dht(DHT_pin, DHT_type);   // DHT sensor object
       else {
         appMgr->load_threshold = pref.getFloat("threshold");
       }
-      Serial.print("Preferences Threshold: ");
-      Serial.println(appMgr->load_threshold);    
+      // Serial.print("Preferences Threshold: ");
+      // Serial.println(appMgr->load_threshold);    
         scale.begin(SDA, SCL);
         scale.set_scale(CALIBRATION_FACTOR_LOADCELL);
         scale.tare();
@@ -497,8 +497,8 @@ void getSensorData_print_update(appManager* appMgr) {
   float temperature = dht.readTemperature();
   delay(10);
 
-  // checkGyro(appMgr);
-  // displayDataOnScreen(appMgr);
+  checkGyro(appMgr);
+  displayDataOnScreen(appMgr);
   
   float load = 0.00; 
 
@@ -702,7 +702,8 @@ if(displayOn) {
       
       // client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
       //appMgr->conManager-> client .publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-      
+  checkGyro(appMgr);
+  displayDataOnScreen(appMgr);      
 
   } else {
       //Serial.println("No significant change in sensor data. Skipping publish.");
@@ -920,15 +921,15 @@ void initRGB(){
   }
   y_now = temp_val/150;
 
-  Serial.print("X:");
-  Serial.print(x_start);
-  Serial.print(" : ");
-  Serial.print(x_now);
-  Serial.print(" \tY: ");
-  Serial.print(y_start);
-  Serial.print(" : ");
-  Serial.print(y_now);
-  Serial.println();  
+  // Serial.print("X:");
+  // Serial.print(x_start);
+  // Serial.print(" : ");
+  // Serial.print(x_now);
+  // Serial.print(" \tY: ");
+  // Serial.print(y_start);
+  // Serial.print(" : ");
+  // Serial.print(y_now);
+  // Serial.println();  
   // float x_now = (float)(a.acceleration.x/.10);
   // float y_now = (float)(a.acceleration.y/.10);
     
